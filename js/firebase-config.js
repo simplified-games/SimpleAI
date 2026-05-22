@@ -1,16 +1,24 @@
 // js/firebase-config.js
 // ─── REPLACE THESE WITH YOUR ACTUAL FIREBASE PROJECT VALUES ────────────────────
-const FIREBASE_CONFIG = {
-  apiKey:            "YOUR_FIREBASE_API_KEY",
-  authDomain:        "YOUR_PROJECT.firebaseapp.com",
-  projectId:         "YOUR_PROJECT_ID",
-  storageBucket:     "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId:             "YOUR_APP_ID",
+const firebaseConfig = {
+
+  apiKey: "AIzaSyCI3HIINwfMCUlIIrl6cKb_ovmarHhA_Is",
+
+  authDomain: "simpleai-firebase.firebaseapp.com",
+
+  projectId: "simpleai-firebase",
+
+  storageBucket: "simpleai-firebase.firebasestorage.app",
+
+  messagingSenderId: "533498949517",
+
+  appId: "1:533498949517:web:75bd5f7b0db29eb6fe97c4"
+
 };
 
+
 // ─── DENO BACKEND URL (your Deno Deploy URL) ───────────────────────────────────
-const DENO_API_URL = "https://YOUR_PROJECT.deno.dev";
+const DENO_API_URL = "https://simpleai-api.simplifiedtest10.deno.net/";
 
 // ─── ADMIN EMAIL ───────────────────────────────────────────────────────────────
 const ADMIN_EMAIL = "alex@hbig.com.au";
