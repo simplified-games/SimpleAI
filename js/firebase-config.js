@@ -17,6 +17,7 @@ const firebaseConfig = {
 };
 
 
+
 // ─── DENO BACKEND URL (your Deno Deploy URL) ───────────────────────────────────
 const DENO_API_URL = "https://simpleai-api.simplifiedtest10.deno.net/";
 
