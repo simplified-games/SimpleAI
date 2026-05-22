@@ -1,6 +1,6 @@
 // js/firebase-config.js
 // ─── REPLACE THESE WITH YOUR ACTUAL FIREBASE PROJECT VALUES ────────────────────
-const firebaseConfig = {
+const FIREBASE_CONFIG = {
 
   apiKey: "AIzaSyCI3HIINwfMCUlIIrl6cKb_ovmarHhA_Is",
 
@@ -33,3 +33,5 @@ const TOKEN_CONFIG = {
 };
 
 export { FIREBASE_CONFIG, DENO_API_URL, ADMIN_EMAIL, TOKEN_CONFIG };
+
+
