@@ -1,16 +1,15 @@
 // js/models.js
 const MODELS = [
   // ── GROQ ────────────────────────────────────────────────────────────────────
-  // Change this entry in js/models.js:
   {
-    id: "meta-llama/llama-4-scout-17b-16e-instruct",
-    name: "Llama 4 Scout",
+    id: "meta-llama/llama-4-maverick-17b-128e-instruct",
+    name: "Llama 4 Maverick",
     provider: "groq",
     category: "Fast",
-    description: "Meta's efficient Llama 4 – blazing fast with native tool use",
+    description: "Meta's latest Llama 4 – blazing fast with vision support",
     hasReasoning: false,
-    hasVision: false,
-    costPerKTokens: 0.11,
+    hasVision: true,
+    costPerKTokens: 0.5,
     badge: "⚡ Fast",
     badgeColor: "#10b981",
   },
@@ -65,7 +64,7 @@ const MODELS = [
   },
   {
     id: "meta/llama-3.1-405b-instruct",
-    name: "GPT-OSS 20B",
+    name: "GPT-OSS 120B",
     provider: "nvidia",
     category: "Powerful",
     description: "Open-source frontier model hosted on NVIDIA NIM",
@@ -76,16 +75,16 @@ const MODELS = [
     badgeColor: "#ef4444",
   },
   {
-    id: "openai/gpt-oss-120b",
-    name: "GPT OSS 120B",
-    provider: "groq",
-    category: "Powerful",
-    description: "OpenAI's flagship open-weight model with built-in reasoning",
-    hasReasoning: true,
+    id: "meta/llama-3.2-3b-instruct",
+    name: "GPT-OSS 20B",
+    provider: "nvidia",
+    category: "Balanced",
+    description: "Efficient open-source model for everyday tasks",
+    hasReasoning: false,
     hasVision: false,
-    costPerKTokens: 0.15,
-    badge: "🧠 Deep Thinker",
-    badgeColor: "#8b5cf6",
+    costPerKTokens: 1,
+    badge: "⚖️ Balanced",
+    badgeColor: "#06b6d4",
   },
   {
     id: "deepseek-ai/deepseek-r1",
@@ -159,7 +158,8 @@ const MODELS = [
     costPerKTokens: 2.5,
     badge: "🧠 Reasoning",
     badgeColor: "#8b5cf6",
-  },
+  }
+];
 
 const CATEGORIES = ["All", "Fast", "Balanced", "Powerful", "Most Powerful", "Reasoning", "Code"];
 
@@ -167,7 +167,6 @@ const PROVIDER_INFO = {
   groq:    { name: "Groq",         color: "#f97316", logo: "⚡" },
   nvidia:  { name: "NVIDIA",       color: "#76b900", logo: "🟢" },
   mistral: { name: "Mistral / LeChat", color: "#ff7000", logo: "🌊" },
-  google:  { name: "Google AI",    color: "#4285f4", logo: "🔵" },
 };
 
 export { MODELS, CATEGORIES, PROVIDER_INFO };
