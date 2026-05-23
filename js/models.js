@@ -1,15 +1,16 @@
 // js/models.js
 const MODELS = [
   // ── GROQ ────────────────────────────────────────────────────────────────────
+  // Change this entry in js/models.js:
   {
-    id: "meta-llama/llama-4-maverick-17b-128e-instruct",
-    name: "Llama 4 Maverick",
+    id: "meta-llama/llama-4-scout-17b-16e-instruct",
+    name: "Llama 4 Scout",
     provider: "groq",
     category: "Fast",
-    description: "Meta's latest Llama 4 – blazing fast with vision support",
+    description: "Meta's efficient Llama 4 – blazing fast with native tool use",
     hasReasoning: false,
-    hasVision: true,
-    costPerKTokens: 0.5,
+    hasVision: false,
+    costPerKTokens: 0.11,
     badge: "⚡ Fast",
     badgeColor: "#10b981",
   },
@@ -75,16 +76,16 @@ const MODELS = [
     badgeColor: "#ef4444",
   },
   {
-    id: "meta/llama-3.2-3b-instruct",
-    name: "GPT-OSS 20B",
-    provider: "nvidia",
-    category: "Balanced",
-    description: "Efficient open-source model for everyday tasks",
-    hasReasoning: false,
+    id: "openai/gpt-oss-120b",
+    name: "GPT OSS 120B",
+    provider: "groq",
+    category: "Powerful",
+    description: "OpenAI's flagship open-weight model with built-in reasoning",
+    hasReasoning: true,
     hasVision: false,
-    costPerKTokens: 1,
-    badge: "⚖️ Balanced",
-    badgeColor: "#06b6d4",
+    costPerKTokens: 0.15,
+    badge: "🧠 Deep Thinker",
+    badgeColor: "#8b5cf6",
   },
   {
     id: "deepseek-ai/deepseek-r1",
