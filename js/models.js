@@ -40,7 +40,7 @@ const MODELS = [
   // ── NVIDIA ───────────────────────────────────────────────────────────────────
   {
     id: "nvidia/llama-3.3-nemotron-super-49b-v1",
-    name: "Nemotron 3 Super",
+    name: "Nemotron Super 49B",
     provider: "nvidia",
     category: "Powerful",
     description: "NVIDIA's fine-tuned Nemotron with enhanced reasoning",
@@ -50,6 +50,7 @@ const MODELS = [
     badge: "🧠 Reasoning",
     badgeColor: "#8b5cf6",
   },
+  // FIX: Nemotron Ultra 253B — corrected model ID for NVIDIA NIM
   {
     id: "nvidia/llama-3.1-nemotron-ultra-253b-v1",
     name: "Nemotron Ultra 253B",
@@ -64,7 +65,7 @@ const MODELS = [
   },
   {
     id: "meta/llama-3.1-405b-instruct",
-    name: "GPT-OSS 120B",
+    name: "Llama 3.1 405B",
     provider: "nvidia",
     category: "Powerful",
     description: "Open-source frontier model hosted on NVIDIA NIM",
@@ -76,7 +77,7 @@ const MODELS = [
   },
   {
     id: "meta/llama-3.2-3b-instruct",
-    name: "GPT-OSS 20B",
+    name: "Llama 3.2 3B",
     provider: "nvidia",
     category: "Balanced",
     description: "Efficient open-source model for everyday tasks",
@@ -86,9 +87,9 @@ const MODELS = [
     badge: "⚖️ Balanced",
     badgeColor: "#06b6d4",
   },
-  // Fix DeepSeek R1 in js/models.js
+  // FIX: DeepSeek R1 — use the top-level model ID (not distill-llama path which is Groq-specific)
   {
-    id: "deepseek-ai/deepseek-r1-distill-llama-70b", // Changing this to the active, ultra-fast 70B production endpoint
+    id: "deepseek-ai/deepseek-r1",
     name: "DeepSeek R1",
     provider: "nvidia",
     category: "Reasoning",
@@ -99,9 +100,10 @@ const MODELS = [
     badge: "🧠 Reasoning",
     badgeColor: "#8b5cf6",
   },
+  // FIX: DeepSeek V3 — corrected to the active NVIDIA NIM alias
   {
-    id: "deepseek-ai/deepseek-v3", // NVIDIA uses 'deepseek-v3' as the production alias for the V-series
-    name: "DeepSeek V4",
+    id: "deepseek-ai/deepseek-v3-0324",
+    name: "DeepSeek V3",
     provider: "nvidia",
     category: "Powerful",
     description: "DeepSeek's latest frontier model",
@@ -159,15 +161,30 @@ const MODELS = [
     costPerKTokens: 2.5,
     badge: "🧠 Reasoning",
     badgeColor: "#8b5cf6",
-  }
+  },
+  // ── PIXAZO (Image Generation) ─────────────────────────────────────────────────
+  {
+    id: "pixazo-image-gen",
+    name: "Pixazo Image",
+    provider: "pixazo",
+    category: "Image",
+    description: "Generate stunning AI images from any text prompt",
+    hasReasoning: false,
+    hasVision: false,
+    isImageModel: true,           // custom flag used in app.js
+    costPerKTokens: 1000,         // flat 1 000 tokens per image
+    badge: "🎨 Image",
+    badgeColor: "#7c3aed",
+  },
 ];
 
-const CATEGORIES = ["All", "Fast", "Balanced", "Powerful", "Most Powerful", "Reasoning", "Code"];
+const CATEGORIES = ["All", "Fast", "Balanced", "Powerful", "Most Powerful", "Reasoning", "Code", "Image"];
 
 const PROVIDER_INFO = {
   groq:    { name: "Groq",         color: "#f97316", logo: "⚡" },
   nvidia:  { name: "NVIDIA",       color: "#76b900", logo: "🟢" },
   mistral: { name: "Mistral / LeChat", color: "#ff7000", logo: "🌊" },
+  pixazo:  { name: "Pixazo",       color: "#7c3aed", logo: "🎨" },
 };
 
 export { MODELS, CATEGORIES, PROVIDER_INFO };
