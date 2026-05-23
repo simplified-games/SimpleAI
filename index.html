@@ -8,6 +8,80 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+
+  <!-- ── Syntax highlighting (highlight.js — GitHub Dark theme) ── -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <!-- ── Code block styles ───────────────────────────────────────── -->
+  <style>
+    /* Wrapper around the entire fenced code block */
+    .code-block-wrapper {
+      margin: 10px 0;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: #0d1117; /* matches github-dark */
+      font-size: .85rem;
+    }
+
+    /* Header bar: language label + copy button */
+    .code-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 14px;
+      background: #161b22;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .code-lang-label {
+      font-size: .72rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: #8b949e;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    .copy-code-btn {
+      font-size: .75rem;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: #8b949e;
+      cursor: pointer;
+      transition: background .15s, color .15s;
+      font-family: inherit;
+    }
+    .copy-code-btn:hover  { background: rgba(255,255,255,0.12); color: #e6edf3; }
+    .copy-code-btn.copied { color: #3fb950; border-color: #3fb950; }
+
+    /* Override hljs <pre> defaults so it fits the wrapper */
+    .code-block-wrapper pre {
+      margin: 0;
+      border-radius: 0;
+      background: transparent !important;
+    }
+    .code-block-wrapper pre code.hljs {
+      background: transparent !important;
+      padding: 14px 18px;
+      font-size: .84rem;
+      line-height: 1.55;
+    }
+
+    /* Inline code */
+    code.inline-code {
+      background: rgba(110,118,129,0.18);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: .88em;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: #e6edf3;
+    }
+  </style>
 </head>
 <body>
 
@@ -59,7 +133,7 @@
           <div class="user-name" id="user-name">Loading…</div>
           <div class="user-email" id="user-email"></div>
         </div>
-        <button id="signout-btn" title="Sign out" style="color:var(--text-muted);font-size:.8rem;padding:4px 6px;border-radius:6px;" title="Sign out">⏻</button>
+        <button id="signout-btn" title="Sign out" style="color:var(--text-muted);font-size:.8rem;padding:4px 6px;border-radius:6px;">⏻</button>
       </div>
 
       <!-- Admin button (hidden until admin login) -->
@@ -151,6 +225,7 @@
       <button class="cat-btn" data-cat="Most Powerful">🌟 Most Powerful</button>
       <button class="cat-btn" data-cat="Reasoning">🧠 Reasoning</button>
       <button class="cat-btn" data-cat="Code">💻 Code</button>
+      <button class="cat-btn" data-cat="Image">🎨 Image</button>  <!-- NEW -->
     </div>
 
     <!-- Grid -->
