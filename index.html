@@ -9,79 +9,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
 
-  <!-- ── Syntax highlighting (highlight.js — GitHub Dark theme) ── -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <!-- highlight.js — Atom One Dark theme, matches existing pre colours -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-
-  <!-- ── Code block styles ───────────────────────────────────────── -->
-  <style>
-    /* Wrapper around the entire fenced code block */
-    .code-block-wrapper {
-      margin: 10px 0;
-      border-radius: 10px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,0.08);
-      background: #0d1117; /* matches github-dark */
-      font-size: .85rem;
-    }
-
-    /* Header bar: language label + copy button */
-    .code-block-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 14px;
-      background: #161b22;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-
-    .code-lang-label {
-      font-size: .72rem;
-      font-weight: 600;
-      letter-spacing: .04em;
-      text-transform: uppercase;
-      color: #8b949e;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    }
-
-    .copy-code-btn {
-      font-size: .75rem;
-      font-weight: 500;
-      padding: 3px 10px;
-      border-radius: 6px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.06);
-      color: #8b949e;
-      cursor: pointer;
-      transition: background .15s, color .15s;
-      font-family: inherit;
-    }
-    .copy-code-btn:hover  { background: rgba(255,255,255,0.12); color: #e6edf3; }
-    .copy-code-btn.copied { color: #3fb950; border-color: #3fb950; }
-
-    /* Override hljs <pre> defaults so it fits the wrapper */
-    .code-block-wrapper pre {
-      margin: 0;
-      border-radius: 0;
-      background: transparent !important;
-    }
-    .code-block-wrapper pre code.hljs {
-      background: transparent !important;
-      padding: 14px 18px;
-      font-size: .84rem;
-      line-height: 1.55;
-    }
-
-    /* Inline code */
-    code.inline-code {
-      background: rgba(110,118,129,0.18);
-      border-radius: 4px;
-      padding: 2px 6px;
-      font-size: .88em;
-      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      color: #e6edf3;
-    }
-  </style>
 </head>
 <body>
 
@@ -117,13 +47,11 @@
     <div id="chat-list"></div>
 
     <div class="sidebar-footer">
-      <!-- Token badge -->
       <div style="padding:6px 8px 10px;display:flex;align-items:center;justify-content:space-between;gap:6px;">
         <span id="token-badge" class="token-badge">Loading…</span>
         <span id="reset-timer" style="font-size:.72rem;color:var(--text-muted)"></span>
       </div>
 
-      <!-- User info -->
       <div class="user-info">
         <div class="user-avatar">
           <img id="user-avatar-img" src="" alt="" style="display:none">
@@ -136,7 +64,6 @@
         <button id="signout-btn" title="Sign out" style="color:var(--text-muted);font-size:.8rem;padding:4px 6px;border-radius:6px;">⏻</button>
       </div>
 
-      <!-- Admin button (hidden until admin login) -->
       <button id="admin-nav-btn" style="display:none;align-items:center;gap:8px;width:100%;padding:8px 10px;border-radius:10px;font-size:.85rem;font-weight:600;color:#f59e0b;margin-top:6px;transition:background .12s;" onmouseover="this.style.background='#fef3c7'" onmouseout="this.style.background=''">
         ⚙️ Admin Panel
       </button>
@@ -146,54 +73,33 @@
   <!-- ── MAIN ─────────────────────────────────────────────────────────────── -->
   <div id="main">
 
-    <!-- ── HEADER ──────────────────────────────────────────────────────────── -->
     <header id="header">
       <button class="header-toggle-btn sidebar-toggle-btn" title="Toggle sidebar">☰</button>
-
       <button id="model-selector-btn"><!-- filled by JS --></button>
-
       <div id="reasoning-row" style="display:none;align-items:center;gap:6px;margin-left:8px;">
         <label class="reasoning-toggle" id="reasoning-label">
           <input type="checkbox" id="reasoning-toggle"> 🧠 Reasoning
         </label>
       </div>
-
       <div class="header-actions">
         <button class="header-btn" onclick="startNewChat()" title="New chat">✏️ New</button>
       </div>
     </header>
 
-    <!-- ── CHAT AREA ───────────────────────────────────────────────────────── -->
-    <div id="chat-area">
-      <!-- Welcome screen injected by JS -->
-    </div>
+    <div id="chat-area"></div>
 
-    <!-- ── INPUT AREA ──────────────────────────────────────────────────────── -->
     <div id="input-area">
       <div class="input-wrapper">
-        <!-- Image preview -->
         <div id="image-preview-container"></div>
-
-        <!-- Toolbar -->
         <div class="input-toolbar">
-          <button class="input-tool-btn" id="image-upload-btn" title="Attach image">
-            🖼 Image
-          </button>
+          <button class="input-tool-btn" id="image-upload-btn" title="Attach image">🖼 Image</button>
           <input type="file" id="image-input" accept="image/*" style="display:none">
           <button class="input-tool-btn" onclick="document.getElementById('image-input').click()" style="display:none">📎</button>
         </div>
-
-        <!-- Text input row -->
         <div class="input-row">
-          <textarea
-            id="message-input"
-            placeholder="Ask SimpleAI anything…"
-            rows="1"
-          ></textarea>
+          <textarea id="message-input" placeholder="Ask SimpleAI anything…" rows="1"></textarea>
           <button class="send-btn" id="send-btn">➤</button>
         </div>
-
-        <!-- Footer: token info -->
         <div class="input-footer">
           <div class="token-reset-info">
             <span>⏱</span>
@@ -215,8 +121,6 @@
       <span class="modal-title">Choose a model</span>
       <button id="modal-close" class="modal-close">✕</button>
     </div>
-
-    <!-- Category tabs -->
     <div class="model-categories" id="model-categories">
       <button class="cat-btn active" data-cat="All">All</button>
       <button class="cat-btn" data-cat="Fast">⚡ Fast</button>
@@ -225,13 +129,9 @@
       <button class="cat-btn" data-cat="Most Powerful">🌟 Most Powerful</button>
       <button class="cat-btn" data-cat="Reasoning">🧠 Reasoning</button>
       <button class="cat-btn" data-cat="Code">💻 Code</button>
-      <button class="cat-btn" data-cat="Image">🎨 Image</button>  <!-- NEW -->
+      <button class="cat-btn" data-cat="Image">🎨 Image</button>
     </div>
-
-    <!-- Grid -->
-    <div class="model-grid" id="model-grid">
-      <!-- filled by JS -->
-    </div>
+    <div class="model-grid" id="model-grid"></div>
   </div>
 </div>
 
@@ -244,7 +144,6 @@
       <button id="admin-close" class="modal-close">✕</button>
     </div>
     <div class="admin-body">
-      <!-- Grant tokens -->
       <div class="admin-section">
         <h3>Grant Tokens</h3>
         <div class="admin-grant-row">
@@ -253,19 +152,10 @@
           <button class="admin-btn" id="admin-grant-btn">Grant</button>
         </div>
       </div>
-
-      <!-- Users table -->
       <div class="admin-section">
         <h3>All Users</h3>
         <table class="admin-users-table">
-          <thead>
-            <tr>
-              <th>Email</th>
-              <th>Role</th>
-              <th>Token Balance</th>
-              <th>Total Used</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Email</th><th>Role</th><th>Token Balance</th><th>Total Used</th></tr></thead>
           <tbody id="admin-users-body">
             <tr><td colspan="4" style="text-align:center;color:var(--text-muted)">Loading…</td></tr>
           </tbody>
@@ -275,7 +165,6 @@
   </div>
 </div>
 
-<!-- ══ TOAST CONTAINER ════════════════════════════════════════════════════════ -->
 <div id="toast-container"></div>
 
 <!-- ══ FIREBASE + APP SCRIPTS ════════════════════════════════════════════════ -->
