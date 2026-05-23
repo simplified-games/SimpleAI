@@ -19,7 +19,7 @@ const FIREBASE_CONFIG = {
 
 
 // ─── DENO BACKEND URL (your Deno Deploy URL) ───────────────────────────────────
-const DENO_API_URL = "https://simpleai-api.simplifiedtest10.deno.net/";
+const DENO_API_URL = "https://simpleai-api.simplifiedtest10.deno.net";
 
 // ─── ADMIN EMAIL ───────────────────────────────────────────────────────────────
 const ADMIN_EMAIL = "alex@hbig.com.au";
