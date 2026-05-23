@@ -160,44 +160,6 @@ const MODELS = [
     badge: "🧠 Reasoning",
     badgeColor: "#8b5cf6",
   },
-  // ── GOOGLE ───────────────────────────────────────────────────────────────────
-  {
-    id: "gemini-2.0-flash",
-    name: "Gemini 2.0 Flash",
-    provider: "google",
-    category: "Fast",
-    description: "Google's fastest Gemini – great all-around model",
-    hasReasoning: false,
-    hasVision: true,
-    costPerKTokens: 0.5,
-    badge: "⚡ Fast",
-    badgeColor: "#10b981",
-  },
-  {
-    id: "gemini-2.5-pro-preview-06-05",
-    name: "Gemini 2.5 Pro",
-    provider: "google",
-    category: "Most Powerful",
-    description: "Google's most capable Gemini with deep reasoning",
-    hasReasoning: true,
-    hasVision: true,
-    costPerKTokens: 4,
-    badge: "🌟 Premium",
-    badgeColor: "#f59e0b",
-  },
-  {
-    id: "gemini-2.0-flash-thinking-exp",
-    name: "Gemini Flash Thinking",
-    provider: "google",
-    category: "Reasoning",
-    description: "Flash with experimental thinking capabilities",
-    hasReasoning: true,
-    hasVision: false,
-    costPerKTokens: 1.5,
-    badge: "🧠 Reasoning",
-    badgeColor: "#8b5cf6",
-  },
-];
 
 const CATEGORIES = ["All", "Fast", "Balanced", "Powerful", "Most Powerful", "Reasoning", "Code"];
 
