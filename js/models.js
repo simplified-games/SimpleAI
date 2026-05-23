@@ -65,7 +65,7 @@ const MODELS = [
   },
   {
     id: "meta/llama-3.1-405b-instruct",
-    name: "GPT-OSS 120B",
+    name: "GPT-OSS 20B",
     provider: "nvidia",
     category: "Powerful",
     description: "Open-source frontier model hosted on NVIDIA NIM",
