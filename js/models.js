@@ -86,8 +86,9 @@ const MODELS = [
     badge: "⚖️ Balanced",
     badgeColor: "#06b6d4",
   },
+  // Fix DeepSeek R1 in js/models.js
   {
-    id: "deepseek-ai/deepseek-r1",
+    id: "deepseek-ai/deepseek-r1-distill-llama-70b", // Changing this to the active, ultra-fast 70B production endpoint
     name: "DeepSeek R1",
     provider: "nvidia",
     category: "Reasoning",
@@ -99,7 +100,7 @@ const MODELS = [
     badgeColor: "#8b5cf6",
   },
   {
-    id: "deepseek-ai/deepseek-v3-0324",
+    id: "deepseek-ai/deepseek-v3", // NVIDIA uses 'deepseek-v3' as the production alias for the V-series
     name: "DeepSeek V4",
     provider: "nvidia",
     category: "Powerful",
