@@ -1,12 +1,14 @@
 // js/models.js
 const MODELS = [
-  // ── GROQ ────────────────────────────────────────────────────────────────────
+
+  // ── GROQ ─────────────────────────────────────────────────────────────────────
+  // Verified model IDs from Groq's live endpoint (api.groq.com/openai/v1)
   {
     id: "meta-llama/llama-4-maverick-17b-128e-instruct",
     name: "Llama 4 Maverick",
     provider: "groq",
     category: "Fast",
-    description: "Meta's latest Llama 4 – blazing fast with vision support",
+    description: "Meta's Llama 4 – blazing fast inference with vision support",
     hasReasoning: false,
     hasVision: true,
     costPerKTokens: 0.5,
@@ -18,7 +20,7 @@ const MODELS = [
     name: "Llama 3.3 70B",
     provider: "groq",
     category: "Balanced",
-    description: "Versatile large language model by Meta via Groq",
+    description: "Versatile large model by Meta, served on Groq LPU",
     hasReasoning: false,
     hasVision: false,
     costPerKTokens: 0.8,
@@ -37,29 +39,83 @@ const MODELS = [
     badge: "🚀 Instant",
     badgeColor: "#3b82f6",
   },
-  // ── NVIDIA ───────────────────────────────────────────────────────────────────
+  {
+    id: "deepseek-r1-distill-llama-70b",
+    name: "DeepSeek R1 (Groq)",
+    provider: "groq",
+    category: "Reasoning",
+    description: "DeepSeek R1 distilled – fast reasoning on Groq LPU",
+    hasReasoning: true,
+    hasVision: false,
+    costPerKTokens: 1,
+    badge: "🧠 Reasoning",
+    badgeColor: "#8b5cf6",
+  },
+
+  // ── CEREBRAS ──────────────────────────────────────────────────────────────────
+  // Base URL: https://api.cerebras.ai/v1  |  Free: 1M tokens/day, no card needed
+  // Fastest inference available: 1000–2600 tok/s on wafer-scale hardware
+  {
+    id: "llama-4-scout-17b-16e-instruct",
+    name: "Llama 4 Scout",
+    provider: "cerebras",
+    category: "Fast",
+    description: "Llama 4 Scout on Cerebras – 2600 tok/s, vision support",
+    hasReasoning: false,
+    hasVision: true,
+    costPerKTokens: 0.3,
+    badge: "🔥 Fastest",
+    badgeColor: "#ef4444",
+  },
+  {
+    id: "llama-3.3-70b",
+    name: "Llama 3.3 70B (Cerebras)",
+    provider: "cerebras",
+    category: "Balanced",
+    description: "Llama 3.3 70B at 1800 tok/s – fastest 70B inference",
+    hasReasoning: false,
+    hasVision: false,
+    costPerKTokens: 0.6,
+    badge: "🔥 Fastest",
+    badgeColor: "#ef4444",
+  },
+  {
+    id: "llama3.1-8b",
+    name: "Llama 3.1 8B (Cerebras)",
+    provider: "cerebras",
+    category: "Fast",
+    description: "Smallest Cerebras model – near-instant responses",
+    hasReasoning: false,
+    hasVision: false,
+    costPerKTokens: 0.1,
+    badge: "🚀 Instant",
+    badgeColor: "#3b82f6",
+  },
+
+  // ── NVIDIA NIM ────────────────────────────────────────────────────────────────
+  // Base URL: https://integrate.api.nvidia.com/v1
+  // All IDs verified against build.nvidia.com as of May 2025
   {
     id: "nvidia/llama-3.3-nemotron-super-49b-v1",
     name: "Nemotron Super 49B",
     provider: "nvidia",
-    category: "Powerful",
-    description: "NVIDIA's fine-tuned Nemotron with enhanced reasoning",
+    category: "Reasoning",
+    description: "NVIDIA's reasoning-tuned Nemotron – great for analysis",
     hasReasoning: true,
     hasVision: false,
     costPerKTokens: 2,
     badge: "🧠 Reasoning",
     badgeColor: "#8b5cf6",
   },
-  // FIX: Nemotron Ultra 253B — corrected model ID for NVIDIA NIM
   {
-    id: "nvidia/llama-3.1-nemotron-ultra-253b-v1",
-    name: "Nemotron Ultra 253B",
+    id: "moonshotai/kimi-k2-instruct",
+    name: "Kimi K2",
     provider: "nvidia",
     category: "Most Powerful",
-    description: "NVIDIA's most powerful model – 253B parameters",
-    hasReasoning: true,
+    description: "Moonshot AI's frontier agentic model – top-tier quality",
+    hasReasoning: false,
     hasVision: false,
-    costPerKTokens: 5,
+    costPerKTokens: 4,
     badge: "🌟 Premium",
     badgeColor: "#f59e0b",
   },
@@ -68,52 +124,42 @@ const MODELS = [
     name: "Llama 3.1 405B",
     provider: "nvidia",
     category: "Powerful",
-    description: "Open-source frontier model hosted on NVIDIA NIM",
+    description: "Meta's open-source frontier model on NVIDIA NIM",
     hasReasoning: false,
     hasVision: false,
     costPerKTokens: 3,
     badge: "💪 Powerful",
     badgeColor: "#ef4444",
   },
-  {
-    id: "meta/llama-3.2-3b-instruct",
-    name: "Llama 3.2 3B",
-    provider: "nvidia",
-    category: "Balanced",
-    description: "Efficient open-source model for everyday tasks",
-    hasReasoning: false,
-    hasVision: false,
-    costPerKTokens: 1,
-    badge: "⚖️ Balanced",
-    badgeColor: "#06b6d4",
-  },
-  // FIX: DeepSeek R1 — use the top-level model ID (not distill-llama path which is Groq-specific)
+  // DeepSeek R1 on NVIDIA (full model, not distill)
   {
     id: "deepseek-ai/deepseek-r1",
     name: "DeepSeek R1",
     provider: "nvidia",
     category: "Reasoning",
-    description: "DeepSeek's reasoning model – step-by-step thinking",
+    description: "Full DeepSeek R1 reasoning model on NVIDIA NIM",
     hasReasoning: true,
     hasVision: false,
     costPerKTokens: 2,
     badge: "🧠 Reasoning",
     badgeColor: "#8b5cf6",
   },
-  // FIX: DeepSeek V3 — corrected to the active NVIDIA NIM alias
+  // DeepSeek V4 Flash — the stable/fast V4 endpoint (v4-pro has reliability issues)
   {
-    id: "deepseek-ai/deepseek-v3-0324",
-    name: "DeepSeek V3",
+    id: "deepseek-ai/deepseek-v4-flash",
+    name: "DeepSeek V4 Flash",
     provider: "nvidia",
     category: "Powerful",
-    description: "DeepSeek's latest frontier model",
+    description: "DeepSeek V4 Flash – 284B MoE, fast coding & agents",
     hasReasoning: false,
     hasVision: false,
     costPerKTokens: 2,
     badge: "💪 Powerful",
     badgeColor: "#ef4444",
   },
-  // ── MISTRAL (LeChat) ─────────────────────────────────────────────────────────
+
+  // ── MISTRAL ────────────────────────────────────────────────────────────────────
+  // Base URL: https://api.mistral.ai/v1
   {
     id: "mistral-large-latest",
     name: "Mistral Large",
@@ -140,7 +186,7 @@ const MODELS = [
   },
   {
     id: "mistral-small-latest",
-    name: "Mistral Small 4",
+    name: "Mistral Small",
     provider: "mistral",
     category: "Fast",
     description: "Fast and efficient Mistral model for everyday use",
@@ -162,6 +208,7 @@ const MODELS = [
     badge: "🧠 Reasoning",
     badgeColor: "#8b5cf6",
   },
+
   // ── PIXAZO (Image Generation) ─────────────────────────────────────────────────
   {
     id: "pixazo-image-gen",
@@ -171,8 +218,8 @@ const MODELS = [
     description: "Generate stunning AI images from any text prompt",
     hasReasoning: false,
     hasVision: false,
-    isImageModel: true,           // custom flag used in app.js
-    costPerKTokens: 1000,         // flat 1 000 tokens per image
+    isImageModel: true,
+    costPerKTokens: 1000,   // flat 1,000 tokens per image
     badge: "🎨 Image",
     badgeColor: "#7c3aed",
   },
@@ -181,10 +228,11 @@ const MODELS = [
 const CATEGORIES = ["All", "Fast", "Balanced", "Powerful", "Most Powerful", "Reasoning", "Code", "Image"];
 
 const PROVIDER_INFO = {
-  groq:    { name: "Groq",         color: "#f97316", logo: "⚡" },
-  nvidia:  { name: "NVIDIA",       color: "#76b900", logo: "🟢" },
-  mistral: { name: "Mistral / LeChat", color: "#ff7000", logo: "🌊" },
-  pixazo:  { name: "Pixazo",       color: "#7c3aed", logo: "🎨" },
+  groq:     { name: "Groq",         color: "#f97316", logo: "⚡" },
+  cerebras: { name: "Cerebras",     color: "#ef4444", logo: "🔥" },
+  nvidia:   { name: "NVIDIA",       color: "#76b900", logo: "🟢" },
+  mistral:  { name: "Mistral",      color: "#ff7000", logo: "🌊" },
+  pixazo:   { name: "Pixazo",       color: "#7c3aed", logo: "🎨" },
 };
 
 export { MODELS, CATEGORIES, PROVIDER_INFO };
