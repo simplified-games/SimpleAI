@@ -102,7 +102,7 @@ const MODELS = [
   },
   // FIX: DeepSeek V3 — corrected to the active NVIDIA NIM alias
   {
-    id: "deepseek-ai/deepseek-v3-0324", 
+    id: "deepseek-ai/deepseek-v3-0324",
     name: "DeepSeek V3",
     provider: "nvidia",
     category: "Powerful",
