@@ -215,7 +215,7 @@ input, textarea { font-family: inherit; }
   color: #fff;
 }
 
-.header-actions { margin-left: auto; display: flex; gap: 8px; }
+.header-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
 .header-btn {
   padding: 6px 12px;
   border-radius: var(--radius);
@@ -260,6 +260,9 @@ input, textarea { font-family: inherit; }
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 .welcome-sub { font-size: 1.1rem; color: var(--text-muted); }
 .welcome-suggestions {
@@ -741,6 +744,7 @@ input, textarea { font-family: inherit; }
 @keyframes scaleIn { from { opacity: 0; transform: scale(.95) } to { opacity: 1; transform: none } }
 @keyframes bounce { 0%,80%,100% { transform: translateY(0) } 40% { transform: translateY(-8px) } }
 @keyframes spin { to { transform: rotate(360deg) } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(32px) } to { opacity: 1; transform: none } }
 
 /* ── RESPONSIVE ──────────────────────────────────────────────────────────────── */
 @media (max-width: 640px) {
@@ -749,46 +753,34 @@ input, textarea { font-family: inherit; }
   #chat-area { padding: 16px; }
   #input-area { padding: 12px 16px 16px; }
   .model-grid { grid-template-columns: 1fr; }
+  #artifact-panel { position: fixed; inset: 0; width: 100% !important; z-index: 60; }
 }
 
 /* ── CODE BLOCKS ─────────────────────────────────────────────────────────────── */
-/*
-   Works alongside highlight.js (atom-one-dark theme).
-   The wrapper replaces a bare <pre> with a header bar + scrollable code body.
-   Colours are chosen to match the existing .bubble pre (#1e1e2e / #cdd6f4).
-*/
-
-/* Outer wrapper — gives the block its shape and dark background */
 .code-block-wrapper {
   margin: 10px 0;
   border-radius: 10px;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,0.06);
-  background: #1e1e2e; /* matches existing .bubble pre */
+  background: #1e1e2e;
   font-size: .85rem;
 }
-
-/* Header bar: language label on the left, copy button on the right */
 .code-block-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 6px 14px;
-  background: #181825; /* slightly darker than pre bg */
+  background: #181825;
   border-bottom: 1px solid rgba(255,255,255,0.07);
 }
-
-/* Language label (e.g. "python", "javascript") */
 .code-lang-label {
   font-size: .7rem;
   font-weight: 600;
   letter-spacing: .06em;
   text-transform: uppercase;
-  color: #6c7086; /* Catppuccin Mocha overlay2 */
+  color: #6c7086;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
-
-/* Copy button */
 .copy-code-btn {
   font-size: .73rem;
   font-weight: 500;
@@ -807,21 +799,8 @@ input, textarea { font-family: inherit; }
   color: #cdd6f4;
   border-color: rgba(255,255,255,0.18);
 }
-.copy-code-btn.copied {
-  color: #a6e3a1; /* Catppuccin Mocha green */
-  border-color: rgba(166,227,161,0.3);
-}
-
-/* Strip the existing .bubble pre styles when inside a wrapper —
-   the wrapper itself handles border-radius, background, padding. */
-.code-block-wrapper pre {
-  margin: 0;
-  border-radius: 0;
-  background: transparent !important;
-  padding: 0;
-}
-
-/* The highlighted <code> element */
+.copy-code-btn.copied { color: #a6e3a1; border-color: rgba(166,227,161,0.3); }
+.code-block-wrapper pre { margin: 0; border-radius: 0; background: transparent !important; padding: 0; }
 .code-block-wrapper pre code.hljs {
   background: transparent !important;
   padding: 14px 18px;
@@ -830,8 +809,6 @@ input, textarea { font-family: inherit; }
   display: block;
   overflow-x: auto;
 }
-
-/* Inline code — light pill that stands out on white bubbles */
 code.inline-code {
   background: #f1f5f9;
   color: #7c3aed;
@@ -839,4 +816,369 @@ code.inline-code {
   border-radius: 4px;
   font-size: .85em;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   AGENTIC CODING — NEW STYLES
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Agentic Toggle Button (header) ──────────────────────────────────────────── */
+#agentic-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: var(--radius);
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border: 1.5px solid var(--border);
+  background: transparent;
+  transition: all .15s;
+  white-space: nowrap;
+}
+#agentic-toggle-btn:hover {
+  border-color: #10b981;
+  color: #059669;
+  background: #f0fdf4;
+}
+#agentic-toggle-btn.active {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #065f46;
+  box-shadow: 0 0 0 3px rgba(16,185,129,.12);
+}
+
+/* ── Agentic toolbar badge (inside input box) ────────────────────────────────── */
+.agentic-toolbar-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .75rem;
+  font-weight: 600;
+  color: #065f46;
+  background: #d1fae5;
+  padding: 2px 10px;
+  border-radius: 8px;
+  animation: fadeIn .2s ease;
+}
+
+/* ── Agentic mode badge on welcome screen ────────────────────────────────────── */
+.agentic-mode-badge {
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 6px;
+  vertical-align: middle;
+  -webkit-text-fill-color: #fff;
+}
+
+/* ── ARTIFACT PANEL ─────────────────────────────────────────────────────────── */
+#artifact-panel {
+  width: 400px;
+  min-width: 400px;
+  background: var(--bg-sidebar);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: 100vh;
+  overflow: hidden;
+  transition: width .28s cubic-bezier(.4,0,.2,1), min-width .28s cubic-bezier(.4,0,.2,1),
+              opacity .2s ease;
+  animation: slideInRight .25s ease;
+}
+#artifact-panel.hidden {
+  width: 0;
+  min-width: 0;
+  border-left: none;
+  opacity: 0;
+  pointer-events: none;
+  animation: none;
+}
+
+/* Panel header */
+.artifact-panel-header {
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-sidebar);
+  flex-shrink: 0;
+  gap: 8px;
+}
+.artifact-panel-title {
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.artifact-count-badge {
+  font-size: .7rem;
+  font-weight: 700;
+  background: var(--accent);
+  color: #fff;
+  padding: 1px 8px;
+  border-radius: 10px;
+  min-width: 22px;
+  text-align: center;
+}
+.artifact-action-btn {
+  padding: 5px 8px;
+  border-radius: 7px;
+  font-size: .82rem;
+  color: var(--text-muted);
+  transition: background .12s, color .12s;
+}
+.artifact-action-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+/* File list */
+.artifact-file-list {
+  max-height: 220px;
+  overflow-y: auto;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  padding: 6px;
+  flex-shrink: 0;
+}
+.artifact-list-empty {
+  padding: 14px 16px;
+  font-size: .81rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.7;
+}
+.artifact-file-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: .83rem;
+  transition: background .12s;
+  position: relative;
+}
+.artifact-file-item:hover { background: var(--bg-hover); }
+.artifact-file-item.active {
+  background: var(--accent-light);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.artifact-file-icon { font-size: .95rem; flex-shrink: 0; }
+.artifact-file-name {
+  flex: 1;
+  font-weight: 500;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .79rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.artifact-file-lang {
+  font-size: .68rem;
+  color: var(--text-muted);
+  background: var(--bg-active);
+  padding: 1px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.artifact-file-delete {
+  opacity: 0;
+  color: var(--text-muted);
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: .75rem;
+  transition: opacity .12s;
+  flex-shrink: 0;
+}
+.artifact-file-item:hover .artifact-file-delete { opacity: 1; }
+.artifact-file-delete:hover { background: #fee2e2; color: var(--danger); }
+
+/* Viewer area — dark code editor theme */
+.artifact-viewer-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #1e1e2e;
+}
+.artifact-viewer-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 24px;
+}
+.artifact-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Viewer top bar */
+.artifact-viewer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: #181825;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.artifact-viewer-filename {
+  font-size: .8rem;
+  font-weight: 600;
+  color: #cdd6f4;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.artifact-viewer-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* Viewer action buttons (dark theme) */
+.artifact-btn {
+  font-size: .72rem;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.05);
+  color: #6c7086;
+  cursor: pointer;
+  transition: all .15s;
+  font-family: var(--font);
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.artifact-btn:hover {
+  background: rgba(255,255,255,.12);
+  color: #cdd6f4;
+  border-color: rgba(255,255,255,.20);
+}
+.artifact-btn.primary {
+  background: #4f85ee;
+  color: #fff;
+  border-color: #4f85ee;
+}
+.artifact-btn.primary:hover { background: #3b6fd4; border-color: #3b6fd4; }
+
+/* Code view */
+.artifact-code-view {
+  flex: 1;
+  overflow: auto;
+}
+.artifact-code-view pre {
+  margin: 0;
+  min-height: 100%;
+  background: transparent !important;
+  border-radius: 0;
+}
+.artifact-code-view pre code.hljs {
+  padding: 18px 20px;
+  font-size: .81rem;
+  line-height: 1.65;
+  min-height: 100%;
+  display: block;
+  background: transparent !important;
+}
+
+/* Edit view */
+.artifact-edit-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.artifact-edit-textarea {
+  flex: 1;
+  background: #1e1e2e;
+  color: #cdd6f4;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .81rem;
+  line-height: 1.65;
+  padding: 18px 20px;
+  tab-size: 2;
+}
+.artifact-edit-footer {
+  display: flex;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #181825;
+  border-top: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0;
+}
+
+/* Preview view */
+.artifact-preview-view {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.artifact-preview-iframe {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: #fff;
+}
+
+/* ── Artifact chips (in chat bubbles) ────────────────────────────────────────── */
+.artifact-chips-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+.artifact-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s, background .15s;
+}
+.artifact-chip:hover {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,.10);
+  background: #f0fdf4;
+}
+.artifact-chip-icon { font-size: 1.15rem; flex-shrink: 0; }
+.artifact-chip-info { flex: 1; min-width: 0; }
+.artifact-chip-filename {
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .82rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.artifact-chip-meta { font-size: .74rem; color: var(--text-muted); margin-top: 1px; }
+.artifact-chip-open {
+  flex-shrink: 0;
+  font-size: .76rem;
+  font-weight: 600;
+  color: #10b981;
+  white-space: nowrap;
 }
