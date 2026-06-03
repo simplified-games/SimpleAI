@@ -1,4 +1,4 @@
-// js/app.js — SimpleAI main application
+// js/app.js — SimpleAI main application 
 import { FIREBASE_CONFIG, DENO_API_URL, ADMIN_EMAIL, TOKEN_CONFIG } from "./firebase-config.js";
 import { MODELS, CATEGORIES, PROVIDER_INFO } from "./models.js";
 import {
