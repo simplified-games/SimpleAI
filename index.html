@@ -1493,6 +1493,7 @@ code.inline-code {
       </div>
       <div style="display:flex;gap:4px;">
         <button id="artifact-clear-btn" class="artifact-action-btn" title="Clear all artifacts">🗑</button>
+        <button id="artifact-reset-btn" class="artifact-action-btn" title="Reset all project data (clears localStorage)">⚠️</button>
         <button id="artifact-panel-close" class="artifact-action-btn" title="Close panel">✕</button>
       </div>
     </div>
@@ -2814,6 +2815,19 @@ $("#artifact-clear-btn").onclick = () => {
   selectedArtifactId = null;
   refreshArtifactPanel();
   showToast("All artifacts cleared", "info");
+};
+
+$("#artifact-reset-btn").onclick = () => {
+  if (!confirm("⚠️ Reset ALL project data?\n\nThis clears:\n• All artifacts\n• VFS / file system\n• Chat history is NOT affected\n\nThis cannot be undone.")) return;
+  clearAllArtifacts();
+  vfs.clear();
+  selectedArtifactId = null;
+  activeFile = null;
+  refreshIdeTabs();
+  refreshArtifactPanel();
+  if (ideConsoleOutput) ideConsoleOutput.innerHTML = "";
+  appendConsoleLog("🔄 Project data reset.", "console-success");
+  showToast("Project data reset", "info");
 };
 
 function refreshArtifactPanel() {
