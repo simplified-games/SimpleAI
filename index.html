@@ -4,7 +4,1193 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SimpleAI</title>
-  <link rel="stylesheet" href="css/styles.css">
+  <style>
+/* css/styles.css */  
+:root {
+  --bg:           #f0f4f9;
+  --bg-sidebar:   #ffffff;
+  --bg-input:     #ffffff;
+  --bg-hover:     #e8edf5;
+  --bg-active:    #dde3ea;
+  --text-primary: #1f2937;
+  --text-muted:   #6b7280;
+  --border:       #e5e7eb;
+  --accent:       #4f85ee;
+  --accent-dark:  #3b6fd4;
+  --accent-light: #eef2fc;
+  --user-bubble:  #dde8fb;
+  --ai-bubble:    #ffffff;
+  --danger:       #ef4444;
+  --success:      #10b981;
+  --shadow-sm:    0 1px 3px rgba(0,0,0,.08);
+  --shadow-md:    0 4px 16px rgba(0,0,0,.10);
+  --radius:       12px;
+  --radius-lg:    20px;
+  --font:         'Google Sans', 'Segoe UI', system-ui, sans-serif;
+  --sidebar-w:    260px;
+  --header-h:     60px;
+}
+
+/* ── RESET ──────────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; font-family: var(--font); background: var(--bg); color: var(--text-primary); }
+a { text-decoration: none; color: inherit; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+input, textarea { font-family: inherit; }
+
+/* ── SCROLLBAR ──────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ── LAYOUT ─────────────────────────────────────────────────────────────────── */
+#app { display: flex; height: 100vh; }
+
+/* ── SIDEBAR ────────────────────────────────────────────────────────────────── */
+#sidebar {
+  width: var(--sidebar-w);
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  transition: width .25s ease, transform .25s ease;
+  overflow: hidden;
+}
+#sidebar.collapsed { width: 0; border: none; }
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo {
+  font-size: 1.15rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent) 0%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.sidebar-toggle {
+  margin-left: auto;
+  padding: 6px;
+  border-radius: 8px;
+  color: var(--text-muted);
+  transition: background .15s;
+}
+.sidebar-toggle:hover { background: var(--bg-hover); }
+
+.new-chat-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px;
+  padding: 10px 14px;
+  background: var(--accent-light);
+  color: var(--accent);
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: .88rem;
+  transition: background .15s;
+}
+.new-chat-btn:hover { background: #dde8fb; }
+
+.sidebar-section-title {
+  padding: 8px 16px 4px;
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+#chat-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 8px;
+}
+
+.chat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: .88rem;
+  color: var(--text-primary);
+  transition: background .12s;
+  position: relative;
+}
+.chat-item:hover { background: var(--bg-hover); }
+.chat-item.active { background: var(--bg-active); font-weight: 500; }
+.chat-item-title {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chat-item-delete {
+  opacity: 0;
+  color: var(--text-muted);
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: .8rem;
+  transition: opacity .12s;
+}
+.chat-item:hover .chat-item-delete { opacity: 1; }
+.chat-item-delete:hover { background: #fee2e2; color: var(--danger); }
+
+.sidebar-footer {
+  border-top: 1px solid var(--border);
+  padding: 12px;
+}
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background .12s;
+}
+.user-info:hover { background: var(--bg-hover); }
+.user-avatar {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--accent-light);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .85rem; font-weight: 600; color: var(--accent);
+  flex-shrink: 0;
+}
+.user-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.user-meta { flex: 1; min-width: 0; }
+.user-name { font-size: .85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-email { font-size: .72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.token-badge {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-light);
+  padding: 2px 6px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+/* ── MAIN CONTENT ───────────────────────────────────────────────────────────── */
+#main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+/* ── HEADER ─────────────────────────────────────────────────────────────────── */
+#header {
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-sidebar);
+  gap: 12px;
+}
+.header-toggle-btn {
+  padding: 6px;
+  border-radius: 8px;
+  color: var(--text-muted);
+  transition: background .15s;
+}
+.header-toggle-btn:hover { background: var(--bg-hover); }
+
+#model-selector-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  background: var(--bg-hover);
+  font-size: .9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: background .15s;
+}
+#model-selector-btn:hover { background: var(--bg-active); }
+.model-badge-sm {
+  font-size: .7rem;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.header-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.header-btn {
+  padding: 6px 12px;
+  border-radius: var(--radius);
+  font-size: .85rem;
+  font-weight: 500;
+  transition: background .15s;
+  color: var(--text-muted);
+}
+.header-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.header-btn.primary {
+  background: var(--accent);
+  color: #fff;
+  padding: 6px 16px;
+}
+.header-btn.primary:hover { background: var(--accent-dark); }
+
+/* ── CHAT AREA ──────────────────────────────────────────────────────────────── */
+#chat-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  scroll-behavior: smooth;
+}
+
+/* ── WELCOME SCREEN ──────────────────────────────────────────────────────────── */
+#welcome-screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  animation: fadeIn .4s ease;
+}
+.welcome-logo {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent) 0%, #a78bfa 60%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.welcome-sub { font-size: 1.1rem; color: var(--text-muted); }
+.welcome-suggestions {
+  display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; max-width: 600px;
+}
+.suggestion-chip {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: .85rem;
+  color: var(--text-primary);
+  background: var(--bg-sidebar);
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+.suggestion-chip:hover { background: var(--accent-light); border-color: var(--accent); }
+
+/* ── MESSAGE BUBBLES ────────────────────────────────────────────────────────── */
+.message-wrapper {
+  display: flex;
+  gap: 12px;
+  animation: slideUp .2s ease;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+}
+.message-wrapper.user { flex-direction: row-reverse; }
+
+.msg-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .8rem; font-weight: 700;
+  background: var(--accent-light);
+  color: var(--accent);
+}
+.msg-avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.msg-avatar.ai-avatar { background: linear-gradient(135deg, var(--accent), #a78bfa); color: #fff; }
+
+.message-body { max-width: 75%; display: flex; flex-direction: column; gap: 4px; }
+.message-wrapper.user .message-body { align-items: flex-end; }
+
+.bubble {
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+  font-size: .92rem;
+  line-height: 1.65;
+  box-shadow: var(--shadow-sm);
+}
+.user .bubble {
+  background: var(--user-bubble);
+  border-bottom-right-radius: 4px;
+}
+.assistant .bubble {
+  background: var(--ai-bubble);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 4px;
+}
+
+/* Markdown rendering in bubbles */
+.bubble h1, .bubble h2, .bubble h3 { font-weight: 600; margin: 12px 0 6px; }
+.bubble h1 { font-size: 1.2rem; }
+.bubble h2 { font-size: 1.05rem; }
+.bubble h3 { font-size: .95rem; }
+.bubble p { margin-bottom: 8px; }
+.bubble p:last-child { margin-bottom: 0; }
+.bubble ul, .bubble ol { padding-left: 20px; margin-bottom: 8px; }
+.bubble li { margin-bottom: 3px; }
+.bubble pre {
+  background: #1e1e2e;
+  color: #cdd6f4;
+  padding: 12px 14px;
+  border-radius: 10px;
+  overflow-x: auto;
+  font-size: .83rem;
+  line-height: 1.5;
+  margin: 8px 0;
+}
+.bubble code:not(pre code) {
+  background: #f1f5f9;
+  color: #7c3aed;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: .85em;
+}
+.bubble strong { font-weight: 600; }
+.bubble a { color: var(--accent); text-decoration: underline; }
+.bubble table { border-collapse: collapse; width: 100%; margin: 8px 0; }
+.bubble th, .bubble td { border: 1px solid var(--border); padding: 6px 10px; font-size: .85rem; }
+.bubble th { background: var(--bg); font-weight: 600; }
+.bubble img { max-width: 100%; border-radius: 10px; margin: 6px 0; }
+.bubble blockquote { border-left: 3px solid var(--accent); padding-left: 12px; color: var(--text-muted); margin: 8px 0; }
+
+/* ── THINKING DROPDOWN ───────────────────────────────────────────────────────── */
+.thinking-block {
+  background: #f8f4ff;
+  border: 1px solid #e9d5ff;
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+.thinking-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: .82rem;
+  color: #7c3aed;
+  font-weight: 500;
+  transition: background .12s;
+  user-select: none;
+}
+.thinking-toggle:hover { background: #f3e8ff; }
+.thinking-chevron { transition: transform .2s; font-size: .8rem; }
+.thinking-toggle.open .thinking-chevron { transform: rotate(180deg); }
+.thinking-content {
+  padding: 10px 14px;
+  font-size: .83rem;
+  color: #6b21a8;
+  line-height: 1.6;
+  border-top: 1px solid #e9d5ff;
+  display: none;
+  white-space: pre-wrap;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.thinking-content.open { display: block; }
+
+/* ── TOKEN USAGE TAG ────────────────────────────────────────────────────────── */
+.token-usage-tag {
+  font-size: .72rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 4px;
+}
+.token-count { font-weight: 600; color: var(--accent); }
+
+/* ── TYPING INDICATOR ───────────────────────────────────────────────────────── */
+.typing-indicator { display: flex; gap: 4px; padding: 14px 16px; }
+.typing-dot {
+  width: 7px; height: 7px;
+  background: var(--text-muted);
+  border-radius: 50%;
+  animation: bounce 1.2s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: .2s; }
+.typing-dot:nth-child(3) { animation-delay: .4s; }
+
+/* ── INPUT BAR ───────────────────────────────────────────────────────────────── */
+#input-area {
+  padding: 16px 24px 20px;
+  background: var(--bg);
+}
+.input-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 10px 14px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color .15s, box-shadow .15s;
+}
+.input-wrapper:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(79,133,238,.12);
+}
+
+.input-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.input-tool-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: .78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  transition: background .12s, color .12s;
+}
+.input-tool-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+.input-tool-btn.active { background: var(--accent-light); color: var(--accent); }
+
+.input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+#message-input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: .93rem;
+  line-height: 1.6;
+  resize: none;
+  max-height: 180px;
+  color: var(--text-primary);
+}
+#message-input::placeholder { color: var(--text-muted); }
+
+.send-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+  transition: background .15s, transform .1s;
+}
+.send-btn:hover { background: var(--accent-dark); transform: scale(1.05); }
+.send-btn:disabled { background: var(--border); cursor: default; transform: none; }
+
+.input-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+  font-size: .73rem;
+  color: var(--text-muted);
+}
+.token-reset-info { display: flex; gap: 4px; align-items: center; }
+.reasoning-toggle {
+  display: flex; align-items: center; gap: 6px;
+  cursor: pointer;
+  font-size: .78rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color .12s;
+}
+.reasoning-toggle input { cursor: pointer; accent-color: #7c3aed; }
+.reasoning-toggle.enabled { color: #7c3aed; }
+
+/* ── IMAGE PREVIEW ──────────────────────────────────────────────────────────── */
+.image-preview-container {
+  margin-bottom: 8px;
+  position: relative;
+  display: inline-block;
+}
+.image-preview-container img { max-height: 100px; border-radius: 8px; border: 1px solid var(--border); }
+.image-preview-remove {
+  position: absolute; top: -6px; right: -6px;
+  background: var(--danger); color: #fff;
+  width: 18px; height: 18px;
+  border-radius: 50%; font-size: .7rem;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── MODEL PICKER MODAL ──────────────────────────────────────────────────────── */
+#model-modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+  animation: fadeIn .15s ease;
+}
+#model-modal.hidden { display: none; }
+
+.model-modal-inner {
+  background: #fff;
+  border-radius: 20px;
+  width: 820px;
+  max-width: 95vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+  overflow: hidden;
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+.modal-title { font-size: 1.1rem; font-weight: 700; flex: 1; }
+.modal-close { padding: 6px; border-radius: 8px; color: var(--text-muted); font-size: 1.1rem; transition: background .12s; }
+.modal-close:hover { background: var(--bg-hover); }
+
+.model-categories {
+  display: flex;
+  gap: 6px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+.cat-btn {
+  padding: 5px 14px;
+  border-radius: 16px;
+  font-size: .82rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+  transition: all .12s;
+}
+.cat-btn:hover { background: var(--bg-hover); }
+.cat-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.model-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 12px;
+  padding: 20px 24px;
+  overflow-y: auto;
+}
+
+.model-card {
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s, background .15s;
+  position: relative;
+}
+.model-card:hover { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,133,238,.10); }
+.model-card.selected { border-color: var(--accent); background: var(--accent-light); }
+.model-card-provider {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 4px;
+}
+.model-card-name { font-size: .92rem; font-weight: 700; margin-bottom: 4px; }
+.model-card-desc { font-size: .78rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 10px; }
+.model-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.model-card-badge {
+  font-size: .7rem;
+  padding: 2px 8px;
+  border-radius: 5px;
+  font-weight: 600;
+  color: #fff;
+}
+.model-card-cost { font-size: .75rem; color: var(--text-muted); }
+.model-card-reason {
+  font-size: .72rem;
+  color: #7c3aed;
+  background: #f3e8ff;
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-weight: 600;
+}
+.model-card-vision {
+  font-size: .72rem;
+  color: #0284c7;
+  background: #e0f2fe;
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-weight: 600;
+}
+.model-selected-check {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--accent); color: #fff;
+  width: 20px; height: 20px;
+  border-radius: 50%; font-size: .75rem;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── ADMIN BADGE ─────────────────────────────────────────────────────────────── */
+.admin-badge {
+  font-size: .7rem;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* ── LOGIN PAGE ──────────────────────────────────────────────────────────────── */
+#login-page {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #e0e7ff 0%, #f0fdf4 50%, #fdf2f8 100%);
+  z-index: 200;
+}
+#login-page.hidden { display: none; }
+
+.login-card {
+  background: #fff;
+  border-radius: 24px;
+  padding: 40px;
+  width: 380px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.12);
+  animation: scaleIn .3s ease;
+}
+.login-logo { font-size: 2rem; font-weight: 800; margin-bottom: 6px; background: linear-gradient(135deg, var(--accent), #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.login-sub { font-size: .9rem; color: var(--text-muted); margin-bottom: 28px; }
+.google-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: #fff;
+  font-size: .9rem; font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background .15s, box-shadow .15s;
+}
+.google-btn:hover { background: var(--bg); box-shadow: var(--shadow-sm); }
+.google-icon { width: 18px; }
+.login-footer { margin-top: 20px; font-size: .75rem; color: var(--text-muted); }
+
+/* ── TOAST ───────────────────────────────────────────────────────────────────── */
+#toast-container {
+  position: fixed; bottom: 80px; right: 24px;
+  display: flex; flex-direction: column; gap: 8px;
+  z-index: 999;
+}
+.toast {
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: .85rem; font-weight: 500;
+  box-shadow: var(--shadow-md);
+  animation: slideRight .25s ease;
+  color: #fff;
+  max-width: 300px;
+}
+.toast.success { background: var(--success); }
+.toast.error   { background: var(--danger); }
+.toast.info    { background: var(--accent); }
+
+/* ── ADMIN PANEL ─────────────────────────────────────────────────────────────── */
+#admin-panel {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+  animation: fadeIn .15s ease;
+}
+#admin-panel.hidden { display: none; }
+.admin-inner {
+  background: #fff; border-radius: 20px;
+  width: 640px; max-width: 95vw; max-height: 80vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+  overflow: hidden;
+}
+.admin-body { padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 20px; }
+.admin-section h3 { font-size: .9rem; font-weight: 700; margin-bottom: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; }
+.admin-grant-row { display: flex; gap: 8px; }
+.admin-input {
+  flex: 1; padding: 9px 12px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  font-size: .88rem; outline: none;
+}
+.admin-input:focus { border-color: var(--accent); }
+.admin-btn {
+  padding: 9px 16px;
+  background: var(--accent); color: #fff;
+  border-radius: var(--radius); font-size: .88rem; font-weight: 600;
+  transition: background .12s;
+}
+.admin-btn:hover { background: var(--accent-dark); }
+.admin-users-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
+.admin-users-table th, .admin-users-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align: left; }
+.admin-users-table th { background: var(--bg); font-weight: 600; }
+
+/* ── ANIMATIONS ──────────────────────────────────────────────────────────────── */
+@keyframes fadeIn  { from { opacity: 0 } to { opacity: 1 } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
+@keyframes slideRight { from { opacity: 0; transform: translateX(20px) } to { opacity: 1; transform: none } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(.95) } to { opacity: 1; transform: none } }
+@keyframes bounce { 0%,80%,100% { transform: translateY(0) } 40% { transform: translateY(-8px) } }
+@keyframes spin { to { transform: rotate(360deg) } }
+@keyframes slideInRight { from { opacity: 0; transform: translateX(32px) } to { opacity: 1; transform: none } }
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  #sidebar { position: fixed; inset: 0 auto 0 0; z-index: 50; width: var(--sidebar-w); transform: translateX(-100%); }
+  #sidebar.mobile-open { transform: none; }
+  #chat-area { padding: 16px; }
+  #input-area { padding: 12px 16px 16px; }
+  .model-grid { grid-template-columns: 1fr; }
+  #artifact-panel { position: fixed; inset: 0; width: 100% !important; z-index: 60; }
+}
+
+/* ── CODE BLOCKS ─────────────────────────────────────────────────────────────── */
+.code-block-wrapper {
+  margin: 10px 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: #1e1e2e;
+  font-size: .85rem;
+}
+.code-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 14px;
+  background: #181825;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.code-lang-label {
+  font-size: .7rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #6c7086;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.copy-code-btn {
+  font-size: .73rem;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.05);
+  color: #6c7086;
+  cursor: pointer;
+  transition: background .15s, color .15s, border-color .15s;
+  font-family: var(--font);
+  line-height: 1.4;
+}
+.copy-code-btn:hover {
+  background: rgba(255,255,255,0.12);
+  color: #cdd6f4;
+  border-color: rgba(255,255,255,0.18);
+}
+.copy-code-btn.copied { color: #a6e3a1; border-color: rgba(166,227,161,0.3); }
+.code-block-wrapper pre { margin: 0; border-radius: 0; background: transparent !important; padding: 0; }
+.code-block-wrapper pre code.hljs {
+  background: transparent !important;
+  padding: 14px 18px;
+  font-size: .83rem;
+  line-height: 1.58;
+  display: block;
+  overflow-x: auto;
+}
+code.inline-code {
+  background: #f1f5f9;
+  color: #7c3aed;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: .85em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   AGENTIC CODING — NEW STYLES
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Agentic Toggle Button (header) ──────────────────────────────────────────── */
+#agentic-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: var(--radius);
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  border: 1.5px solid var(--border);
+  background: transparent;
+  transition: all .15s;
+  white-space: nowrap;
+}
+#agentic-toggle-btn:hover {
+  border-color: #10b981;
+  color: #059669;
+  background: #f0fdf4;
+}
+#agentic-toggle-btn.active {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #065f46;
+  box-shadow: 0 0 0 3px rgba(16,185,129,.12);
+}
+
+/* ── Agentic toolbar badge (inside input box) ────────────────────────────────── */
+.agentic-toolbar-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .75rem;
+  font-weight: 600;
+  color: #065f46;
+  background: #d1fae5;
+  padding: 2px 10px;
+  border-radius: 8px;
+  animation: fadeIn .2s ease;
+}
+
+/* ── Agentic mode badge on welcome screen ────────────────────────────────────── */
+.agentic-mode-badge {
+  font-size: .65rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  padding: 3px 10px;
+  border-radius: 6px;
+  vertical-align: middle;
+  -webkit-text-fill-color: #fff;
+}
+
+/* ── ARTIFACT PANEL ─────────────────────────────────────────────────────────── */
+#artifact-panel {
+  width: 400px;
+  min-width: 400px;
+  background: var(--bg-sidebar);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  height: 100vh;
+  overflow: hidden;
+  transition: width .28s cubic-bezier(.4,0,.2,1), min-width .28s cubic-bezier(.4,0,.2,1),
+              opacity .2s ease;
+  animation: slideInRight .25s ease;
+}
+#artifact-panel.hidden {
+  width: 0;
+  min-width: 0;
+  border-left: none;
+  opacity: 0;
+  pointer-events: none;
+  animation: none;
+}
+
+/* Panel header */
+.artifact-panel-header {
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-sidebar);
+  flex-shrink: 0;
+  gap: 8px;
+}
+.artifact-panel-title {
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.artifact-count-badge {
+  font-size: .7rem;
+  font-weight: 700;
+  background: var(--accent);
+  color: #fff;
+  padding: 1px 8px;
+  border-radius: 10px;
+  min-width: 22px;
+  text-align: center;
+}
+.artifact-action-btn {
+  padding: 5px 8px;
+  border-radius: 7px;
+  font-size: .82rem;
+  color: var(--text-muted);
+  transition: background .12s, color .12s;
+}
+.artifact-action-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+/* File list */
+.artifact-file-list {
+  max-height: 220px;
+  overflow-y: auto;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  padding: 6px;
+  flex-shrink: 0;
+}
+.artifact-list-empty {
+  padding: 14px 16px;
+  font-size: .81rem;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.7;
+}
+.artifact-file-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: .83rem;
+  transition: background .12s;
+  position: relative;
+}
+.artifact-file-item:hover { background: var(--bg-hover); }
+.artifact-file-item.active {
+  background: var(--accent-light);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.artifact-file-icon { font-size: .95rem; flex-shrink: 0; }
+.artifact-file-name {
+  flex: 1;
+  font-weight: 500;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .79rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.artifact-file-lang {
+  font-size: .68rem;
+  color: var(--text-muted);
+  background: var(--bg-active);
+  padding: 1px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.artifact-file-delete {
+  opacity: 0;
+  color: var(--text-muted);
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: .75rem;
+  transition: opacity .12s;
+  flex-shrink: 0;
+}
+.artifact-file-item:hover .artifact-file-delete { opacity: 1; }
+.artifact-file-delete:hover { background: #fee2e2; color: var(--danger); }
+
+/* Viewer area — dark code editor theme */
+.artifact-viewer-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #1e1e2e;
+}
+.artifact-viewer-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 24px;
+}
+.artifact-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Viewer top bar */
+.artifact-viewer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  background: #181825;
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.artifact-viewer-filename {
+  font-size: .8rem;
+  font-weight: 600;
+  color: #cdd6f4;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.artifact-viewer-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* Viewer action buttons (dark theme) */
+.artifact-btn {
+  font-size: .72rem;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.05);
+  color: #6c7086;
+  cursor: pointer;
+  transition: all .15s;
+  font-family: var(--font);
+  line-height: 1.5;
+  white-space: nowrap;
+}
+.artifact-btn:hover {
+  background: rgba(255,255,255,.12);
+  color: #cdd6f4;
+  border-color: rgba(255,255,255,.20);
+}
+.artifact-btn.primary {
+  background: #4f85ee;
+  color: #fff;
+  border-color: #4f85ee;
+}
+.artifact-btn.primary:hover { background: #3b6fd4; border-color: #3b6fd4; }
+
+/* Code view */
+.artifact-code-view {
+  flex: 1;
+  overflow: auto;
+}
+.artifact-code-view pre {
+  margin: 0;
+  min-height: 100%;
+  background: transparent !important;
+  border-radius: 0;
+}
+.artifact-code-view pre code.hljs {
+  padding: 18px 20px;
+  font-size: .81rem;
+  line-height: 1.65;
+  min-height: 100%;
+  display: block;
+  background: transparent !important;
+}
+
+/* Edit view */
+.artifact-edit-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.artifact-edit-textarea {
+  flex: 1;
+  background: #1e1e2e;
+  color: #cdd6f4;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .81rem;
+  line-height: 1.65;
+  padding: 18px 20px;
+  tab-size: 2;
+}
+.artifact-edit-footer {
+  display: flex;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #181825;
+  border-top: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0;
+}
+
+/* Preview view */
+.artifact-preview-view {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.artifact-preview-iframe {
+  flex: 1;
+  width: 100%;
+  border: none;
+  background: #fff;
+}
+
+/* ── Artifact chips (in chat bubbles) ────────────────────────────────────────── */
+.artifact-chips-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+.artifact-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s, background .15s;
+}
+.artifact-chip:hover {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16,185,129,.10);
+  background: #f0fdf4;
+}
+.artifact-chip-icon { font-size: 1.15rem; flex-shrink: 0; }
+.artifact-chip-info { flex: 1; min-width: 0; }
+.artifact-chip-filename {
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .82rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.artifact-chip-meta { font-size: .74rem; color: var(--text-muted); margin-top: 1px; }
+.artifact-chip-open {
+  flex-shrink: 0;
+  font-size: .76rem;
+  font-weight: 600;
+  color: #10b981;
+  white-space: nowrap;
+}
+
+</style>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
@@ -209,7 +1395,1762 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script type="module" src="js/app.js"></script>
+<script>
+// ════════════════════════════════════════════════════════════════
+// SimpleAI — combined bundle (was 6 ES modules in /js/)
+// Each former module is wrapped in an IIFE; its exports are hoisted
+// to the outer scope so the rest of the bundle can reference them.
+// ════════════════════════════════════════════════════════════════
 
-</body>
+// ============================================================
+// firebase-config.js
+// ============================================================
+// ── firebase-config.js ──
+var FIREBASE_CONFIG, DENO_API_URL, ADMIN_EMAIL, TOKEN_CONFIG;
+var __EXP_firebase_config_js_FIREBASE_CONFIG, __EXP_firebase_config_js_DENO_API_URL, __EXP_firebase_config_js_ADMIN_EMAIL, __EXP_firebase_config_js_TOKEN_CONFIG;
+(function(){
+
+// js/firebase-config.js
+// ─── REPLACE THESE WITH YOUR ACTUAL FIREBASE PROJECT VALUES ────────────────────
+const FIREBASE_CONFIG = {
+
+  apiKey: "AIzaSyCI3HIINwfMCUlIIrl6cKb_ovmarHhA_Is",
+
+  authDomain: "simpleai-firebase.firebaseapp.com",
+
+  projectId: "simpleai-firebase",
+
+  storageBucket: "simpleai-firebase.firebasestorage.app",
+
+  messagingSenderId: "533498949517",
+
+  appId: "1:533498949517:web:75bd5f7b0db29eb6fe97c4"
+
+};
+
+
+
+// ─── DENO BACKEND URL (your Deno Deploy URL) ───────────────────────────────────
+const DENO_API_URL = "https://simpleai-api.simplifiedtest10.deno.net";
+
+// ─── ADMIN EMAIL ───────────────────────────────────────────────────────────────
+const ADMIN_EMAIL = "alex@hbig.com.au";
+
+// ─── TOKEN CONFIG ──────────────────────────────────────────────────────────────
+const TOKEN_CONFIG = {
+  baseAllowance:    75000,   // tokens per window
+  resetIntervalMs:  3 * 60 * 60 * 1000, // 3 hours
+  imageGenCost:     1000,    // flat per image
+  reasoningMult:    1.5,     // multiplier for thinking models
+};
+
+  __EXP_firebase_config_js_FIREBASE_CONFIG = (typeof FIREBASE_CONFIG !== "undefined") ? FIREBASE_CONFIG : undefined;
+  __EXP_firebase_config_js_DENO_API_URL = (typeof DENO_API_URL !== "undefined") ? DENO_API_URL : undefined;
+  __EXP_firebase_config_js_ADMIN_EMAIL = (typeof ADMIN_EMAIL !== "undefined") ? ADMIN_EMAIL : undefined;
+  __EXP_firebase_config_js_TOKEN_CONFIG = (typeof TOKEN_CONFIG !== "undefined") ? TOKEN_CONFIG : undefined;
+})();
+FIREBASE_CONFIG = __EXP_firebase_config_js_FIREBASE_CONFIG;
+DENO_API_URL = __EXP_firebase_config_js_DENO_API_URL;
+ADMIN_EMAIL = __EXP_firebase_config_js_ADMIN_EMAIL;
+TOKEN_CONFIG = __EXP_firebase_config_js_TOKEN_CONFIG;
+
+// ============================================================
+// models.js
+// ============================================================
+// ── models.js ──
+var MODELS, CATEGORIES, PROVIDER_INFO;
+var __EXP_models_js_MODELS, __EXP_models_js_CATEGORIES, __EXP_models_js_PROVIDER_INFO;
+(function(){
+
+// js/models.js
+const MODELS = [
+
+  // ── GROQ ─────────────────────────────────────────────────────────────────────
+  // Verified model IDs from Groq's live endpoint (api.groq.com/openai/v1)
+  {
+    id: "meta-llama/llama-4-maverick-17b-128e-instruct",
+    name: "Llama 4 Maverick",
+    provider: "groq",
+    category: "Fast",
+    description: "Meta's Llama 4 – blazing fast inference with vision support",
+    hasReasoning: false,
+    hasVision: true,
+    costPerKTokens: 0.5,
+    badge: "⚡ Fast",
+    badgeColor: "#10b981",
+  },
+  {
+    id: "llama-3.3-70b-versatile",
+    name: "Llama 3.3 70B",
+    provider: "groq",
+    category: "Balanced",
+    description: "Versatile large model by Meta, served on Groq LPU",
+    hasReasoning: false,
+    hasVision: false,
+    costPerKTokens: 0.8,
+    badge: "⚡ Fast",
+    badgeColor: "#10b981",
+  },
+  {
+    id: "llama-3.1-8b-instant",
+    name: "Llama 3.1 8B",
+    provider: "groq",
+    category: "Fast",
+    description: "Tiny and instant – great for simple tasks",
+    hasReasoning: false,
+    hasVision: false,
+    costPerKTokens: 0.2,
+    badge: "🚀 Instant",
+    badgeColor: "#3b82f6",
+  },
+  {
+    id: "deepseek-r1-distill-llama-70b",
+    name: "DeepSeek R1 (Groq)",
+    provider: "groq",
+    category: "Reasoning",
+    description: "DeepSeek R1 distilled – fast reasoning on Groq LPU",
+    hasReasoning: true,
+    hasVision: false,
+    costPerKTokens: 1,
+    badge: "🧠 Reasoning",
+    badgeColor: "#8b5cf6",
+  },
+
+  // ── CEREBRAS ──────────────────────────────────────────────────────────────────
+  // Base URL: https://api.cerebras.ai/v1  |  Free: 1M tokens/day, no card needed
+  // Fastest inference available: 1000–2600 tok/s on wafer-scale hardware
+  {
+    id: "llama-4-scout-17b-16e-instruct",
+    name: "Llama 4 Scout",
+    provider: "cerebras",
+    category: "Fast",
+    description: "Llama 4 Scout on Cerebras – 2600 tok/s, vision support",
+    hasReasoning: false,
+    hasVision: true,
+    costPerKTokens: 0.3,
+    badge: "🔥 Fastest",
+    badgeColor: "#ef4444",
+  },
+  {
+    id: "llama-3.3-70b",
+    name: "Llama 3.3 70B (Cerebras)",
+    provider: "cerebras",
+    category: "Balanced",
+    description: "Llama 3.3 70B at 1800 tok/s – fastest 70B inference",
+    hasReasoning: false,
+    hasVision: false,
+    costPerKTokens: 0.6,
+    badge: "🔥 Fastest",
+    badgeColor: "#ef4444",
+  },
+  {
+    id: "llama3.1-8b",
+    name: "Llama 3.1 8B (Cerebras)",
+    provider: "cerebras",
+    category: "Fast",
+    description: "Smallest Cerebras model – near-instant responses",
+    hasReasoning: false,
+    hasVision: false,
+    costPerKTokens: 0.1,
+    badge: "🚀 Instant",
+    badgeColor: "#3b82f6",
+  },
+
+  // ── NVIDIA NIM ────────────────────────────────────────────────────────────────
+  // Base URL: https://integrate.api.nvidia.com/v1
+  // All IDs verified against build.nvidia.com as of May 2025
+  {
+    id: "nvidia/llama-3.3-nemotron-super-49b-v1",
+    name: "Nemotron Super 49B",
+    provider: "nvidia",
+    category: "Reasoning",
+    description: "NVIDIA's reasoning-tuned Nemotron – great for analysis",
+    hasReasoning: true,
+    hasVision: false,
+    costPerKTokens: 2,
+    badge: "🧠 Reasoning",
+    badgeColor: "#8b5cf6",
+  },
+  {
+    id: "moonshotai/kimi-k2-instruct",
+    name: "Kimi K2",
+    provider: "nvidia",
+    category: "Most Powerful",
+    description: "Moonshot AI's frontier agentic model – top-tier quality",
+    hasReasoning: false,
+    hasVision: false,
+    costPerKTokens: 4,
+    badge: "🌟 Premium",
+    badgeColor: "#f59e0b",
+  },
+  {
+    id: "meta/llama-3.1-405b-instruct",
+    name: "Llama 3.1 405B",
+    provider: "nvidia",
+    category: "Powerful",
+    description: "Meta's open-source frontier model on NVIDIA NIM",
+    hasReasoning: false,
+    hasVision: false,
+    costPerKTokens: 3,
+    badge: "💪 Powerful",
+    badgeColor: "#ef4444",
+  },
+  // DeepSeek R1 on NVIDIA (full model, not distill)
+  {
+    id: "deepseek-ai/deepseek-r1",
+    name: "DeepSeek R1",
+    provider: "nvidia",
+    category: "Reasoning",
+    description: "Full DeepSeek R1 reasoning model on NVIDIA NIM",
+    hasReasoning: true,
+    hasVision: false,
+    costPerKTokens: 2,
+    badge: "🧠 Reasoning",
+    badgeColor: "#8b5cf6",
+  },
+  // DeepSeek V4 Flash — the stable/fast V4 endpoint (v4-pro has reliability issues)
+  {
+    id: "deepseek-ai/deepseek-v4-flash",
+    name: "DeepSeek V4 Flash",
+    provider: "nvidia",
+    category: "Powerful",
+    description: "DeepSeek V4 Flash – 284B MoE, fast coding & agents",
+    hasReasoning: false,
+    hasVision: false,
+    costPerKTokens: 2,
+    badge: "💪 Powerful",
+    badgeColor: "#ef4444",
+  },
+
+  // ── MISTRAL ────────────────────────────────────────────────────────────────────
+  // Base URL: https://api.mistral.ai/v1
+  {
+    id: "mistral-large-latest",
+    name: "Mistral Large",
+    provider: "mistral",
+    category: "Powerful",
+    description: "Mistral's flagship model – powerful and accurate",
+    hasReasoning: false,
+    hasVision: false,
+    costPerKTokens: 2,
+    badge: "💪 Powerful",
+    badgeColor: "#ef4444",
+  },
+  {
+    id: "codestral-latest",
+    name: "Codestral",
+    provider: "mistral",
+    category: "Code",
+    description: "Mistral's code-specialized model – best for programming",
+    hasReasoning: false,
+    hasVision: false,
+    costPerKTokens: 1,
+    badge: "💻 Code",
+    badgeColor: "#0ea5e9",
+  },
+  {
+    id: "mistral-small-latest",
+    name: "Mistral Small",
+    provider: "mistral",
+    category: "Fast",
+    description: "Fast and efficient Mistral model for everyday use",
+    hasReasoning: false,
+    hasVision: false,
+    costPerKTokens: 0.5,
+    badge: "⚡ Fast",
+    badgeColor: "#10b981",
+  },
+  {
+    id: "magistral-medium-2506",
+    name: "Magistral Medium",
+    provider: "mistral",
+    category: "Reasoning",
+    description: "Mistral's reasoning-enhanced medium model",
+    hasReasoning: true,
+    hasVision: false,
+    costPerKTokens: 2.5,
+    badge: "🧠 Reasoning",
+    badgeColor: "#8b5cf6",
+  },
+
+  // ── PIXAZO (Image Generation) ─────────────────────────────────────────────────
+  {
+    id: "pixazo-image-gen",
+    name: "Pixazo Image",
+    provider: "pixazo",
+    category: "Image",
+    description: "Generate stunning AI images from any text prompt",
+    hasReasoning: false,
+    hasVision: false,
+    isImageModel: true,
+    costPerKTokens: 1000,   // flat 1,000 tokens per image
+    badge: "🎨 Image",
+    badgeColor: "#7c3aed",
+  },
+];
+
+const CATEGORIES = ["All", "Fast", "Balanced", "Powerful", "Most Powerful", "Reasoning", "Code", "Image"];
+
+const PROVIDER_INFO = {
+  groq:     { name: "Groq",         color: "#f97316", logo: "⚡" },
+  cerebras: { name: "Cerebras",     color: "#ef4444", logo: "🔥" },
+  nvidia:   { name: "NVIDIA",       color: "#76b900", logo: "🟢" },
+  mistral:  { name: "Mistral",      color: "#ff7000", logo: "🌊" },
+  pixazo:   { name: "Pixazo",       color: "#7c3aed", logo: "🎨" },
+};
+
+  __EXP_models_js_MODELS = (typeof MODELS !== "undefined") ? MODELS : undefined;
+  __EXP_models_js_CATEGORIES = (typeof CATEGORIES !== "undefined") ? CATEGORIES : undefined;
+  __EXP_models_js_PROVIDER_INFO = (typeof PROVIDER_INFO !== "undefined") ? PROVIDER_INFO : undefined;
+})();
+MODELS = __EXP_models_js_MODELS;
+CATEGORIES = __EXP_models_js_CATEGORIES;
+PROVIDER_INFO = __EXP_models_js_PROVIDER_INFO;
+
+// ============================================================
+// tokens.js
+// ============================================================
+// ── tokens.js ──
+var initTokens, getTokenData, ensureUserDoc, checkAndDeductTokens, getTimeUntilReset, formatResetTime, calculateCost, adminGrantTokens, adminGetAllUsers;
+var __EXP_tokens_js_initTokens, __EXP_tokens_js_getTokenData, __EXP_tokens_js_ensureUserDoc, __EXP_tokens_js_checkAndDeductTokens, __EXP_tokens_js_getTimeUntilReset, __EXP_tokens_js_formatResetTime, __EXP_tokens_js_calculateCost, __EXP_tokens_js_adminGrantTokens, __EXP_tokens_js_adminGetAllUsers;
+(function(){
+
+// js/tokens.js
+let db, currentUser;
+
+function initTokens(firestore, user) {
+  db = firestore;
+  currentUser = user;
+}
+
+async function getTokenData() {
+  if (!db || !currentUser) return null;
+  const snap = await db.collection("users").doc(currentUser.uid).get();
+  if (!snap.exists) return null;
+  return snap.data();
+}
+
+async function ensureUserDoc() {
+  if (!db || !currentUser) return;
+  const ref = db.collection("users").doc(currentUser.uid);
+  const snap = await ref.get();
+  const now = Date.now();
+
+  if (!snap.exists) {
+    const isAdmin = currentUser.email === ADMIN_EMAIL;
+    await ref.set({
+      email: currentUser.email,
+      displayName: currentUser.displayName ?? "",
+      photoURL: currentUser.photoURL ?? "",
+      isAdmin,
+      tokenBalance: isAdmin ? Infinity : TOKEN_CONFIG.baseAllowance,
+      tokenResetTime: now + TOKEN_CONFIG.resetIntervalMs,
+      totalUsed: 0,
+      createdAt: now,
+    });
+  } else {
+    // Auto-reset if window has expired
+    const data = snap.data();
+    if (!data.isAdmin && Date.now() > (data.tokenResetTime ?? 0)) {
+      await ref.update({
+        tokenBalance: TOKEN_CONFIG.baseAllowance,
+        tokenResetTime: Date.now() + TOKEN_CONFIG.resetIntervalMs,
+      });
+    }
+  }
+}
+
+async function checkAndDeductTokens(cost) {
+  if (!db || !currentUser) return { ok: false, reason: "Not logged in" };
+  const ref = db.collection("users").doc(currentUser.uid);
+  const snap = await ref.get();
+  const data = snap.data();
+
+  if (data.isAdmin) return { ok: true, newBalance: Infinity };
+
+  // Auto-reset check
+  if (Date.now() > (data.tokenResetTime ?? 0)) {
+    await ref.update({
+      tokenBalance: TOKEN_CONFIG.baseAllowance - cost,
+      tokenResetTime: Date.now() + TOKEN_CONFIG.resetIntervalMs,
+      totalUsed: (data.totalUsed ?? 0) + cost,
+    });
+    return { ok: true, newBalance: TOKEN_CONFIG.baseAllowance - cost };
+  }
+
+  if (data.tokenBalance < cost) {
+    return { ok: false, reason: "Insufficient tokens", balance: data.tokenBalance };
+  }
+
+  const newBalance = data.tokenBalance - cost;
+  await ref.update({
+    tokenBalance: newBalance,
+    totalUsed: (data.totalUsed ?? 0) + cost,
+  });
+  return { ok: true, newBalance };
+}
+
+async function getTimeUntilReset() {
+  const data = await getTokenData();
+  if (!data || data.isAdmin) return 0;
+  return Math.max(0, (data.tokenResetTime ?? 0) - Date.now());
+}
+
+function formatResetTime(ms) {
+  const h = Math.floor(ms / 3600000);
+  const m = Math.floor((ms % 3600000) / 60000);
+  const s = Math.floor((ms % 60000) / 1000);
+  return `${h}h ${m}m ${s}s`;
+}
+
+function calculateCost(tokensUsed, model, reasoning) {
+  const base = Math.ceil((tokensUsed * model.costPerKTokens) / 1000) || 1;
+  return reasoning ? Math.ceil(base * TOKEN_CONFIG.reasoningMult) : base;
+}
+
+// ─── ADMIN FUNCTIONS ──────────────────────────────────────────────────────────
+async function adminGrantTokens(targetEmail, amount) {
+  if (!db || !currentUser) return { ok: false };
+  const callerSnap = await db.collection("users").doc(currentUser.uid).get();
+  if (!callerSnap.data()?.isAdmin) return { ok: false, reason: "Not admin" };
+
+  // Find user by email
+  const usersSnap = await db.collection("users").where("email", "==", targetEmail).get();
+  if (usersSnap.empty) return { ok: false, reason: "User not found" };
+
+  const userDoc = usersSnap.docs[0];
+  const current = userDoc.data().tokenBalance ?? 0;
+  await userDoc.ref.update({ tokenBalance: current + amount });
+
+  // Log grant
+  await db.collection("adminGrants").add({
+    targetEmail,
+    amount,
+    grantedBy: currentUser.email,
+    timestamp: Date.now(),
+  });
+
+  return { ok: true };
+}
+
+async function adminGetAllUsers() {
+  if (!db || !currentUser) return [];
+  const callerSnap = await db.collection("users").doc(currentUser.uid).get();
+  if (!callerSnap.data()?.isAdmin) return [];
+  const snap = await db.collection("users").get();
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+
+
+  __EXP_tokens_js_initTokens = (typeof initTokens !== "undefined") ? initTokens : undefined;
+  __EXP_tokens_js_getTokenData = (typeof getTokenData !== "undefined") ? getTokenData : undefined;
+  __EXP_tokens_js_ensureUserDoc = (typeof ensureUserDoc !== "undefined") ? ensureUserDoc : undefined;
+  __EXP_tokens_js_checkAndDeductTokens = (typeof checkAndDeductTokens !== "undefined") ? checkAndDeductTokens : undefined;
+  __EXP_tokens_js_getTimeUntilReset = (typeof getTimeUntilReset !== "undefined") ? getTimeUntilReset : undefined;
+  __EXP_tokens_js_formatResetTime = (typeof formatResetTime !== "undefined") ? formatResetTime : undefined;
+  __EXP_tokens_js_calculateCost = (typeof calculateCost !== "undefined") ? calculateCost : undefined;
+  __EXP_tokens_js_adminGrantTokens = (typeof adminGrantTokens !== "undefined") ? adminGrantTokens : undefined;
+  __EXP_tokens_js_adminGetAllUsers = (typeof adminGetAllUsers !== "undefined") ? adminGetAllUsers : undefined;
+})();
+initTokens = __EXP_tokens_js_initTokens;
+getTokenData = __EXP_tokens_js_getTokenData;
+ensureUserDoc = __EXP_tokens_js_ensureUserDoc;
+checkAndDeductTokens = __EXP_tokens_js_checkAndDeductTokens;
+getTimeUntilReset = __EXP_tokens_js_getTimeUntilReset;
+formatResetTime = __EXP_tokens_js_formatResetTime;
+calculateCost = __EXP_tokens_js_calculateCost;
+adminGrantTokens = __EXP_tokens_js_adminGrantTokens;
+adminGetAllUsers = __EXP_tokens_js_adminGetAllUsers;
+
+// ============================================================
+// chat.js
+// ============================================================
+// ── chat.js ──
+var initChat, createNewChat, listChats, getMessages, addMessage, updateChatTitle, deleteChat;
+var __EXP_chat_js_initChat, __EXP_chat_js_createNewChat, __EXP_chat_js_listChats, __EXP_chat_js_getMessages, __EXP_chat_js_addMessage, __EXP_chat_js_updateChatTitle, __EXP_chat_js_deleteChat;
+(function(){
+
+// js/chat.js
+let db, currentUser;
+
+function initChat(firestore, user) {
+  db = firestore;
+  currentUser = user;
+}
+
+async function createNewChat(title = "New Chat") {
+  if (!db || !currentUser) return null;
+  const ref = await db
+    .collection("chats")
+    .doc(currentUser.uid)
+    .collection("conversations")
+    .add({
+      title,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      model: "meta-llama/llama-4-maverick-17b-128e-instruct",
+      messageCount: 0,
+    });
+  return ref.id;
+}
+
+async function listChats() {
+  if (!db || !currentUser) return [];
+  const snap = await db
+    .collection("chats")
+    .doc(currentUser.uid)
+    .collection("conversations")
+    .orderBy("updatedAt", "desc")
+    .limit(50)
+    .get();
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+async function getMessages(chatId) {
+  if (!db || !currentUser) return [];
+  const snap = await db
+    .collection("chats")
+    .doc(currentUser.uid)
+    .collection("conversations")
+    .doc(chatId)
+    .collection("messages")
+    .orderBy("timestamp", "asc")
+    .get();
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
+async function addMessage(chatId, message) {
+  if (!db || !currentUser) return null;
+  const convRef = db
+    .collection("chats")
+    .doc(currentUser.uid)
+    .collection("conversations")
+    .doc(chatId);
+
+  const msgRef = await convRef.collection("messages").add({
+    ...message,
+    timestamp: Date.now(),
+  });
+
+  // Update conversation metadata
+  const updates = {
+    updatedAt: Date.now(),
+    messageCount: firebase.firestore.FieldValue.increment(1),
+  };
+  if (message.role === "user" && message.content?.length > 0) {
+    const preview = typeof message.content === "string"
+      ? message.content.slice(0, 60)
+      : message.content.find((c) => c.type === "text")?.text?.slice(0, 60) ?? "Image";
+    updates.lastMessage = preview;
+  }
+  await convRef.update(updates);
+  return msgRef.id;
+}
+
+async function updateChatTitle(chatId, title) {
+  if (!db || !currentUser) return;
+  await db
+    .collection("chats")
+    .doc(currentUser.uid)
+    .collection("conversations")
+    .doc(chatId)
+    .update({ title });
+}
+
+async function deleteChat(chatId) {
+  if (!db || !currentUser) return;
+  const convRef = db
+    .collection("chats")
+    .doc(currentUser.uid)
+    .collection("conversations")
+    .doc(chatId);
+
+  // Delete all messages first
+  const msgs = await convRef.collection("messages").get();
+  const batch = db.batch();
+  msgs.docs.forEach((d) => batch.delete(d.ref));
+  batch.delete(convRef);
+  await batch.commit();
+}
+
+
+
+  __EXP_chat_js_initChat = (typeof initChat !== "undefined") ? initChat : undefined;
+  __EXP_chat_js_createNewChat = (typeof createNewChat !== "undefined") ? createNewChat : undefined;
+  __EXP_chat_js_listChats = (typeof listChats !== "undefined") ? listChats : undefined;
+  __EXP_chat_js_getMessages = (typeof getMessages !== "undefined") ? getMessages : undefined;
+  __EXP_chat_js_addMessage = (typeof addMessage !== "undefined") ? addMessage : undefined;
+  __EXP_chat_js_updateChatTitle = (typeof updateChatTitle !== "undefined") ? updateChatTitle : undefined;
+  __EXP_chat_js_deleteChat = (typeof deleteChat !== "undefined") ? deleteChat : undefined;
+})();
+initChat = __EXP_chat_js_initChat;
+createNewChat = __EXP_chat_js_createNewChat;
+listChats = __EXP_chat_js_listChats;
+getMessages = __EXP_chat_js_getMessages;
+addMessage = __EXP_chat_js_addMessage;
+updateChatTitle = __EXP_chat_js_updateChatTitle;
+deleteChat = __EXP_chat_js_deleteChat;
+
+// ============================================================
+// artifacts.js
+// ============================================================
+// ── artifacts.js ──
+var getArtifacts, createArtifact, updateArtifactContent, deleteArtifact, getArtifactByFilename, clearAllArtifacts;
+var __EXP_artifacts_js_getArtifacts, __EXP_artifacts_js_createArtifact, __EXP_artifacts_js_updateArtifactContent, __EXP_artifacts_js_deleteArtifact, __EXP_artifacts_js_getArtifactByFilename, __EXP_artifacts_js_clearAllArtifacts;
+(function(){
+
+// js/artifacts.js — localStorage-backed artifact store
+ 
+const STORAGE_KEY = "simpleai_artifacts";
+
+/** Load all artifacts from localStorage */
+function getArtifacts() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY) ?? "[]");
+  } catch { return []; }
+}
+
+/** Persist the full artifacts array */
+function persist(artifacts) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(artifacts));
+}
+
+/** Create a new artifact and return it */
+function createArtifact({ filename, language, content }) {
+  const all = getArtifacts();
+  // If a file with the same name already exists, treat as edit
+  const existing = all.find(a => a.filename === filename);
+  if (existing) {
+    existing.content    = content;
+    existing.language   = language;
+    existing.updatedAt  = Date.now();
+    persist(all);
+    return existing;
+  }
+  const artifact = {
+    id:        `art_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+    filename,
+    language,
+    content,
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
+  all.push(artifact);
+  persist(all);
+  return artifact;
+}
+
+/** Update an artifact's content by id */
+function updateArtifactContent(id, content) {
+  const all = getArtifacts();
+  const idx = all.findIndex(a => a.id === id);
+  if (idx < 0) return null;
+  all[idx] = { ...all[idx], content, updatedAt: Date.now() };
+  persist(all);
+  return all[idx];
+}
+
+/** Delete an artifact by id */
+function deleteArtifact(id) {
+  persist(getArtifacts().filter(a => a.id !== id));
+}
+
+/** Find by filename (case-sensitive) */
+function getArtifactByFilename(filename) {
+  return getArtifacts().find(a => a.filename === filename) ?? null;
+}
+
+/** Wipe everything */
+function clearAllArtifacts() {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
+
+
+  __EXP_artifacts_js_getArtifacts = (typeof getArtifacts !== "undefined") ? getArtifacts : undefined;
+  __EXP_artifacts_js_createArtifact = (typeof createArtifact !== "undefined") ? createArtifact : undefined;
+  __EXP_artifacts_js_updateArtifactContent = (typeof updateArtifactContent !== "undefined") ? updateArtifactContent : undefined;
+  __EXP_artifacts_js_deleteArtifact = (typeof deleteArtifact !== "undefined") ? deleteArtifact : undefined;
+  __EXP_artifacts_js_getArtifactByFilename = (typeof getArtifactByFilename !== "undefined") ? getArtifactByFilename : undefined;
+  __EXP_artifacts_js_clearAllArtifacts = (typeof clearAllArtifacts !== "undefined") ? clearAllArtifacts : undefined;
+})();
+getArtifacts = __EXP_artifacts_js_getArtifacts;
+createArtifact = __EXP_artifacts_js_createArtifact;
+updateArtifactContent = __EXP_artifacts_js_updateArtifactContent;
+deleteArtifact = __EXP_artifacts_js_deleteArtifact;
+getArtifactByFilename = __EXP_artifacts_js_getArtifactByFilename;
+clearAllArtifacts = __EXP_artifacts_js_clearAllArtifacts;
+
+// ============================================================
+// app.js
+// ============================================================
+// ── app.js ──
+(function(){
+
+// js/app.js — SimpleAI main application  
+// ─── FIREBASE INIT ─────────────────────────────────────────────────────────────
+firebase.initializeApp(FIREBASE_CONFIG);
+const auth = firebase.auth();
+const db   = firebase.firestore();
+
+// ─── STATE ─────────────────────────────────────────────────────────────────────
+let currentUser     = null;
+let currentChatId   = null;
+let selectedModel   = MODELS[0];
+let useReasoning    = false;
+let messageHistory  = [];
+let tokenBalance    = 0;
+let isAdmin         = false;
+let resetCountdownInterval = null;
+let pendingImage    = null;
+let sidebarOpen     = true;
+
+// Agentic coding state
+let agenticMode        = false;
+let selectedArtifactId = null;
+let artifactPanelOpen  = false;
+
+// ─── AGENTIC SYSTEM PROMPT ─────────────────────────────────────────────────────
+const AGENTIC_SYSTEM_PROMPT = `You are SimpleAI's Agentic Coding assistant, powered by Codestral.
+When writing code that should be saved as a file, wrap it in XML artifact tags exactly like this:
+
+<artifact filename="filename.ext" language="javascript" action="create">
+// your code here
+</artifact>
+
+Rules:
+- Use action="create" for new files, action="edit" when modifying an existing artifact
+- Give descriptive filenames with the correct extension (e.g. App.jsx, styles.css, server.py)
+- For multi-file projects, emit multiple <artifact> blocks in a single response
+- Outside artifact tags, write concise explanations only — no duplicate code
+- Never wrap artifact tags inside Markdown code fences
+- Supported languages: javascript, jsx, typescript, tsx, html, css, python, bash, json, markdown, rust, go, java, cpp, c, php, ruby, swift, yaml, sql`;
+
+// ─── DOM REFS ──────────────────────────────────────────────────────────────────
+const $  = (s) => document.querySelector(s);
+const $$ = (s) => document.querySelectorAll(s);
+
+const loginPage        = $("#login-page");
+const appEl            = $("#app");
+const chatArea         = $("#chat-area");
+const chatList         = $("#chat-list");
+const messageInput     = $("#message-input");
+const sendBtn          = $("#send-btn");
+const modelBtn         = $("#model-selector-btn");
+const modelModal       = $("#model-modal");
+const adminPanel       = $("#admin-panel");
+const sidebar          = $("#sidebar");
+const tokenBadgeEl     = $("#token-badge");
+const resetTimerEl     = $("#reset-timer");
+const reasoningToggle  = $("#reasoning-toggle");
+const reasoningLabel   = $("#reasoning-label");
+const imageUploadBtn   = $("#image-upload-btn");
+const imageInput       = $("#image-input");
+const imagePreview     = $("#image-preview-container");
+const toastContainer   = $("#toast-container");
+const userNameEl       = $("#user-name");
+const userEmailEl      = $("#user-email");
+const userAvatarEl     = $("#user-avatar-img");
+
+// Agentic / artifact DOM refs
+const agenticToggleBtn    = $("#agentic-toggle-btn");
+const agenticToolbarBadge = $("#agentic-toolbar-badge");
+const artifactPanel       = $("#artifact-panel");
+const artifactFileList    = $("#artifact-file-list");
+const artifactViewerArea  = $("#artifact-viewer-area");
+const artifactCountBadge  = $("#artifact-count-badge");
+
+// ─── AUTH ──────────────────────────────────────────────────────────────────────
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    currentUser = user;
+    loginPage.classList.add("hidden");
+    initTokens(db, user);
+    initChat(db, user);
+    await ensureUserDoc();
+    await refreshUserData();
+    await loadChatList();
+    startResetCountdown();
+  } else {
+    currentUser = null;
+    loginPage.classList.remove("hidden");
+  }
+});
+
+async function refreshUserData() {
+  const data = await getTokenData();
+  if (!data) return;
+  isAdmin      = data.isAdmin ?? false;
+  tokenBalance = data.isAdmin ? Infinity : (data.tokenBalance ?? 0);
+  updateTokenUI();
+  if (currentUser) {
+    userNameEl.textContent  = currentUser.displayName ?? currentUser.email;
+    userEmailEl.textContent = currentUser.email;
+    if (currentUser.photoURL) {
+      userAvatarEl.src = currentUser.photoURL;
+      userAvatarEl.style.display = "block";
+    }
+    if (isAdmin) {
+      $("#admin-nav-btn").style.display = "flex";
+      document.querySelectorAll(".admin-badge-placeholder").forEach(el => {
+        el.innerHTML = `<span class="admin-badge">ADMIN</span>`;
+      });
+    }
+  }
+}
+
+function updateTokenUI() {
+  if (!tokenBadgeEl) return;
+  tokenBadgeEl.textContent = isAdmin ? "∞ tokens" : `${tokenBalance.toLocaleString()} tokens`;
+}
+
+function startResetCountdown() {
+  if (resetCountdownInterval) clearInterval(resetCountdownInterval);
+  resetCountdownInterval = setInterval(async () => {
+    if (isAdmin) { if (resetTimerEl) resetTimerEl.textContent = "Resets: Never"; return; }
+    const ms = await getTimeUntilReset();
+    if (resetTimerEl) resetTimerEl.textContent = ms > 0 ? `Resets in ${formatResetTime(ms)}` : "Resetting…";
+    if (ms <= 0) await refreshUserData();
+  }, 1000);
+}
+
+// ─── GOOGLE LOGIN ──────────────────────────────────────────────────────────────
+$("#google-login-btn").onclick = () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch((e) => showToast(e.message, "error"));
+};
+$("#signout-btn").onclick = () => auth.signOut();
+
+// ─── SIDEBAR ───────────────────────────────────────────────────────────────────
+function toggleSidebar() {
+  sidebarOpen = !sidebarOpen;
+  if (sidebarOpen) sidebar.classList.remove("collapsed");
+  else sidebar.classList.add("collapsed");
+}
+$$(".sidebar-toggle-btn").forEach(btn => { btn.onclick = toggleSidebar; });
+
+// ─── CHAT LIST ─────────────────────────────────────────────────────────────────
+async function loadChatList() {
+  const chats = await listChats();
+  chatList.innerHTML = "";
+  if (chats.length === 0) {
+    chatList.innerHTML = `<p style="padding:12px 16px;font-size:.82rem;color:var(--text-muted)">No chats yet.</p>`;
+    return;
+  }
+  chats.forEach((chat) => {
+    const item = document.createElement("div");
+    item.className = `chat-item${chat.id === currentChatId ? " active" : ""}`;
+    item.dataset.id = chat.id;
+    item.innerHTML = `
+      <span style="font-size:.9rem">💬</span>
+      <span class="chat-item-title">${escHtml(chat.title || "New Chat")}</span>
+      <button class="chat-item-delete" data-id="${chat.id}" title="Delete">✕</button>
+    `;
+    item.onclick = (e) => {
+      if (e.target.classList.contains("chat-item-delete")) {
+        e.stopPropagation();
+        handleDeleteChat(chat.id);
+        return;
+      }
+      switchToChat(chat.id);
+    };
+    chatList.appendChild(item);
+  });
+}
+
+async function switchToChat(chatId) {
+  currentChatId = chatId;
+  messageHistory = [];
+  chatArea.innerHTML = "";
+
+  $$(".chat-item").forEach(el => {
+    el.classList.toggle("active", el.dataset.id === chatId);
+  });
+
+  const msgs = await getMessages(chatId);
+  for (const msg of msgs) {
+    messageHistory.push({ role: msg.role, content: msg.content });
+    renderMessage(msg.role, msg.content, msg.thinking ?? "", msg.tokensUsed ?? 0);
+  }
+  scrollToBottom();
+}
+
+async function handleDeleteChat(chatId) {
+  await deleteChat(chatId);
+  if (currentChatId === chatId) {
+    currentChatId = null;
+    messageHistory = [];
+    chatArea.innerHTML = "";
+    showWelcomeScreen();
+  }
+  await loadChatList();
+  showToast("Chat deleted", "info");
+}
+
+// ─── NEW CHAT ──────────────────────────────────────────────────────────────────
+$("#new-chat-btn").onclick = startNewChat;
+async function startNewChat() {
+  currentChatId = null;
+  messageHistory = [];
+  chatArea.innerHTML = "";
+  $$(".chat-item").forEach(el => el.classList.remove("active"));
+  showWelcomeScreen();
+}
+window.startNewChat = startNewChat;
+
+function showWelcomeScreen() {
+  const suggestions = agenticMode
+    ? ["🌐 Build a landing page", "⚛️ Create a React counter", "🐍 Write a Flask API", "🎨 Style a card component", "📦 Make a Node.js server", "🔧 Write a Python CLI tool"]
+    : ["✍️ Write a poem about the ocean", "💻 Debug my Python code", "🎨 Generate an image of a sunset", "🧠 Explain quantum computing", "📝 Summarize a document", "🌍 Translate to Spanish"];
+
+  chatArea.innerHTML = `
+    <div id="welcome-screen">
+      <div class="welcome-logo">SimpleAI${agenticMode ? ` <span class="agentic-mode-badge">AGENTIC</span>` : ""}</div>
+      <p class="welcome-sub">${agenticMode ? "What should I build for you?" : "What should we focus on?"}</p>
+      <div class="welcome-suggestions">
+        ${suggestions.map(s =>
+          `<div class="suggestion-chip" onclick="useSuggestion('${escHtml(s)}')">${s}</div>`
+        ).join("")}
+      </div>
+    </div>
+  `;
+}
+
+window.useSuggestion = (text) => {
+  messageInput.value = text;
+  messageInput.focus();
+};
+
+// ─── MODEL PICKER ──────────────────────────────────────────────────────────────
+let activeCategory = "All";
+
+modelBtn.onclick = () => {
+  modelModal.classList.remove("hidden");
+  renderModelGrid("All");
+};
+$("#modal-close").onclick = () => modelModal.classList.add("hidden");
+modelModal.addEventListener("click", (e) => { if (e.target === modelModal) modelModal.classList.add("hidden"); });
+
+function renderModelGrid(category) {
+  activeCategory = category;
+  $$(".cat-btn").forEach(b => b.classList.toggle("active", b.dataset.cat === category));
+
+  const grid = $("#model-grid");
+  const filtered = category === "All" ? MODELS : MODELS.filter(m => m.category === category);
+  grid.innerHTML = filtered.map(m => {
+    const prov = PROVIDER_INFO[m.provider] ?? {};
+    const isSelected = m.id === selectedModel.id;
+    const costLabel = m.isImageModel ? `${m.costPerKTokens}t/img` : `${m.costPerKTokens}t/1K`;
+    return `
+      <div class="model-card${isSelected ? " selected" : ""}" onclick="selectModel('${m.id}')">
+        ${isSelected ? `<div class="model-selected-check">✓</div>` : ""}
+        <div class="model-card-provider">${prov.logo ?? ""} ${prov.name ?? m.provider}</div>
+        <div class="model-card-name">${m.name}</div>
+        <div class="model-card-desc">${m.description}</div>
+        <div class="model-card-footer">
+          <span class="model-card-badge" style="background:${m.badgeColor}">${m.badge}</span>
+          ${m.hasReasoning ? `<span class="model-card-reason">🧠 Reasoning</span>` : ""}
+          ${m.hasVision    ? `<span class="model-card-vision">👁 Vision</span>` : ""}
+          <span class="model-card-cost">${costLabel}</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+$$(".cat-btn").forEach(btn => {
+  btn.onclick = () => renderModelGrid(btn.dataset.cat);
+});
+
+// ─── SELECT MODEL ─────────────────────────────────────────────────────────────
+window.selectModel = (modelId) => {
+  selectedModel = MODELS.find(m => m.id === modelId) ?? MODELS[0];
+  updateModelBtn();
+  modelModal.classList.add("hidden");
+
+  const canReason = selectedModel.hasReasoning;
+  const reasoningRow = $("#reasoning-row");
+  if (reasoningRow) reasoningRow.style.display = canReason ? "flex" : "none";
+  if (!canReason) { useReasoning = false; updateReasoningUI(); }
+
+  if (selectedModel.isImageModel) {
+    messageInput.placeholder = "Describe the image you want to generate…";
+    imageUploadBtn.style.display = "none";
+  } else {
+    messageInput.placeholder = agenticMode ? "Describe what to build or modify…" : "Ask SimpleAI anything…";
+    imageUploadBtn.style.display = agenticMode ? "none" : "";
+  }
+};
+
+function updateModelBtn() {
+  modelBtn.innerHTML = `
+    <span>${selectedModel.name}</span>
+    <span class="model-badge-sm" style="background:${selectedModel.badgeColor}">${selectedModel.badge}</span>
+    <span style="color:var(--text-muted);font-size:.85rem">▾</span>
+  `;
+}
+updateModelBtn();
+
+// ─── REASONING TOGGLE ─────────────────────────────────────────────────────────
+reasoningToggle.onchange = () => {
+  useReasoning = reasoningToggle.checked;
+  updateReasoningUI();
+};
+function updateReasoningUI() {
+  reasoningToggle.checked = useReasoning;
+  reasoningLabel.style.color = useReasoning ? "#7c3aed" : "";
+  reasoningLabel.textContent = useReasoning ? "🧠 Reasoning (1.5× tokens)" : "🧠 Reasoning";
+}
+
+// ─── IMAGE UPLOAD ─────────────────────────────────────────────────────────────
+imageUploadBtn.onclick = () => imageInput.click();
+imageInput.onchange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!selectedModel.hasVision && selectedModel.provider !== "groq") {
+    showToast("Switch to a vision-capable model (Llama 4 Maverick, Gemini)", "error");
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const dataURL = ev.target.result;
+    const base64  = dataURL.split(",")[1];
+    pendingImage  = { base64, mimeType: file.type, objectURL: dataURL };
+    imagePreview.innerHTML = `
+      <div class="image-preview-container">
+        <img src="${dataURL}" alt="preview">
+        <button class="image-preview-remove" onclick="clearImage()">✕</button>
+      </div>
+    `;
+  };
+  reader.readAsDataURL(file);
+  imageInput.value = "";
+};
+window.clearImage = () => { pendingImage = null; imagePreview.innerHTML = ""; };
+
+// ─── AGENTIC CODING MODE ───────────────────────────────────────────────────────
+
+agenticToggleBtn.onclick = toggleAgenticMode;
+
+function toggleAgenticMode() {
+  agenticMode = !agenticMode;
+  agenticToggleBtn.classList.toggle("active", agenticMode);
+
+  if (agenticMode) {
+    // Auto-switch to Codestral
+    const codestral = MODELS.find(m => m.id === "codestral-latest");
+    if (codestral) {
+      selectedModel = codestral;
+      updateModelBtn();
+    }
+    // Hide reasoning row (Codestral doesn't reason)
+    const reasoningRow = $("#reasoning-row");
+    if (reasoningRow) reasoningRow.style.display = "none";
+    useReasoning = false;
+
+    // Update UI
+    messageInput.placeholder = "Describe what to build or modify…";
+    imageUploadBtn.style.display = "none";
+    agenticToolbarBadge.style.display = "flex";
+
+    // Open panel
+    openArtifactPanel();
+    showToast("Agentic Coding ON — Codestral ready 💻", "success");
+  } else {
+    // Restore defaults
+    selectedModel = MODELS[0];
+    updateModelBtn();
+    messageInput.placeholder = "Ask SimpleAI anything…";
+    imageUploadBtn.style.display = "";
+    agenticToolbarBadge.style.display = "none";
+
+    closeArtifactPanel();
+    showToast("Agentic Coding OFF", "info");
+  }
+
+  // Re-render welcome screen with updated suggestions
+  const ws = chatArea.querySelector("#welcome-screen");
+  if (ws) showWelcomeScreen();
+}
+
+// ─── ARTIFACT PANEL MANAGEMENT ────────────────────────────────────────────────
+
+function openArtifactPanel() {
+  artifactPanelOpen = true;
+  artifactPanel.classList.remove("hidden");
+  refreshArtifactPanel();
+}
+
+function closeArtifactPanel() {
+  artifactPanelOpen = false;
+  artifactPanel.classList.add("hidden");
+}
+
+$("#artifact-panel-close").onclick = closeArtifactPanel;
+
+$("#artifact-clear-btn").onclick = () => {
+  if (!confirm("Delete all artifacts? This cannot be undone.")) return;
+  clearAllArtifacts();
+  selectedArtifactId = null;
+  refreshArtifactPanel();
+  showToast("All artifacts cleared", "info");
+};
+
+function refreshArtifactPanel() {
+  const artifacts = getArtifacts();
+  artifactCountBadge.textContent = artifacts.length;
+
+  // Auto-select most recent if nothing is selected
+  if (!selectedArtifactId && artifacts.length > 0) {
+    selectedArtifactId = artifacts[artifacts.length - 1].id;
+  }
+  // Clear selection if artifact was deleted
+  if (selectedArtifactId && !artifacts.find(a => a.id === selectedArtifactId)) {
+    selectedArtifactId = artifacts.length > 0 ? artifacts[artifacts.length - 1].id : null;
+  }
+
+  // ── File list ──
+  if (artifacts.length === 0) {
+    artifactFileList.innerHTML = `<p class="artifact-list-empty">No artifacts yet.<br>Ask Codestral to write code.</p>`;
+  } else {
+    artifactFileList.innerHTML = artifacts.map(a => `
+      <div class="artifact-file-item${a.id === selectedArtifactId ? " active" : ""}" data-id="${a.id}">
+        <span class="artifact-file-icon">${getFileIcon(a.language)}</span>
+        <span class="artifact-file-name">${escHtml(a.filename)}</span>
+        <span class="artifact-file-lang">${escHtml(a.language)}</span>
+        <button class="artifact-file-delete" data-delete-id="${a.id}" title="Delete file">✕</button>
+      </div>
+    `).join("");
+
+    // Bind click handlers
+    artifactFileList.querySelectorAll(".artifact-file-item").forEach(el => {
+      el.addEventListener("click", (e) => {
+        if (e.target.classList.contains("artifact-file-delete")) {
+          e.stopPropagation();
+          const id = e.target.dataset.deleteId;
+          deleteArtifact(id);
+          if (selectedArtifactId === id) selectedArtifactId = null;
+          refreshArtifactPanel();
+          return;
+        }
+        selectedArtifactId = el.dataset.id;
+        refreshArtifactPanel();
+      });
+    });
+  }
+
+  // ── Viewer ──
+  const artifact = artifacts.find(a => a.id === selectedArtifactId);
+  if (artifact) showArtifactInViewer(artifact);
+  else showArtifactViewerEmpty();
+}
+
+function showArtifactViewerEmpty() {
+  artifactViewerArea.innerHTML = `
+    <div class="artifact-viewer-empty">
+      <div style="font-size:2rem;margin-bottom:8px;">💻</div>
+      <p style="font-weight:600;color:#a6adc8;">No file selected</p>
+      <p style="font-size:.78rem;color:#585b70;margin-top:4px;text-align:center;line-height:1.5;">Ask the AI to write code.<br>Files will appear here.</p>
+    </div>
+  `;
+}
+
+function showArtifactInViewer(artifact) {
+  const isHtml = ["html", "htm"].includes(artifact.language.toLowerCase());
+  const isCss  = artifact.language.toLowerCase() === "css";
+
+  artifactViewerArea.innerHTML = `
+    <div class="artifact-viewer">
+      <div class="artifact-viewer-header">
+        <span class="artifact-viewer-filename">${escHtml(artifact.filename)}</span>
+        <div class="artifact-viewer-actions">
+          ${(isHtml || isCss) ? `<button class="artifact-btn" id="av-preview-btn">▶ Preview</button>` : ""}
+          <button class="artifact-btn" id="av-edit-btn">✏️ Edit</button>
+          <button class="artifact-btn" id="av-copy-btn">📋 Copy</button>
+          <button class="artifact-btn" id="av-download-btn">⬇ Save</button>
+        </div>
+      </div>
+
+      <!-- Code view (default) -->
+      <div id="av-code-view" class="artifact-code-view">
+        <pre><code class="language-${escHtml(artifact.language)}">${escHtml(artifact.content)}</code></pre>
+      </div>
+
+      <!-- Edit view -->
+      <div id="av-edit-view" class="artifact-edit-view" style="display:none;">
+        <textarea id="av-edit-ta" class="artifact-edit-textarea" spellcheck="false">${escHtml(artifact.content)}</textarea>
+        <div class="artifact-edit-footer">
+          <button class="artifact-btn primary" id="av-save-btn">💾 Save changes</button>
+          <button class="artifact-btn" id="av-cancel-btn">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Preview view (HTML only) -->
+      <div id="av-preview-view" class="artifact-preview-view" style="display:none;">
+        <iframe id="av-preview-iframe" class="artifact-preview-iframe" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+    </div>
+  `;
+
+  // Highlight code
+  const codeEl = artifactViewerArea.querySelector("pre code");
+  if (codeEl && typeof hljs !== "undefined") hljs.highlightElement(codeEl);
+
+  // ── Edit ──
+  artifactViewerArea.querySelector("#av-edit-btn")?.addEventListener("click", () => {
+    artifactViewerArea.querySelector("#av-code-view").style.display = "none";
+    artifactViewerArea.querySelector("#av-preview-view").style.display = "none";
+    artifactViewerArea.querySelector("#av-edit-view").style.display = "flex";
+    const ta = artifactViewerArea.querySelector("#av-edit-ta");
+    ta.value = artifact.content;
+    ta.focus();
+  });
+
+  // ── Save edits ──
+  artifactViewerArea.querySelector("#av-save-btn")?.addEventListener("click", () => {
+    const newContent = artifactViewerArea.querySelector("#av-edit-ta").value;
+    const updated = updateArtifactContent(artifact.id, newContent);
+    if (updated) {
+      artifact.content = newContent;
+      // Back to code view with refreshed highlight
+      artifactViewerArea.querySelector("#av-edit-view").style.display = "none";
+      artifactViewerArea.querySelector("#av-code-view").style.display = "block";
+      const code = artifactViewerArea.querySelector("pre code");
+      code.textContent = newContent;
+      if (typeof hljs !== "undefined") hljs.highlightElement(code);
+      showToast("Saved!", "success");
+    }
+  });
+
+  // ── Cancel edit ──
+  artifactViewerArea.querySelector("#av-cancel-btn")?.addEventListener("click", () => {
+    artifactViewerArea.querySelector("#av-edit-view").style.display = "none";
+    artifactViewerArea.querySelector("#av-code-view").style.display = "block";
+  });
+
+  // ── Copy ──
+  artifactViewerArea.querySelector("#av-copy-btn")?.addEventListener("click", () => {
+    navigator.clipboard.writeText(artifact.content)
+      .then(() => showToast("Copied to clipboard!", "success"))
+      .catch(() => showToast("Copy failed", "error"));
+  });
+
+  // ── Download ──
+  artifactViewerArea.querySelector("#av-download-btn")?.addEventListener("click", () => {
+    const blob = new Blob([artifact.content], { type: "text/plain;charset=utf-8" });
+    const url  = URL.createObjectURL(blob);
+    const a    = Object.assign(document.createElement("a"), { href: url, download: artifact.filename });
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  // ── Preview (HTML/CSS) ──
+  artifactViewerArea.querySelector("#av-preview-btn")?.addEventListener("click", () => {
+    const codeView    = artifactViewerArea.querySelector("#av-code-view");
+    const previewView = artifactViewerArea.querySelector("#av-preview-view");
+    const editView    = artifactViewerArea.querySelector("#av-edit-view");
+    const btn         = artifactViewerArea.querySelector("#av-preview-btn");
+
+    const previewVisible = previewView.style.display !== "none";
+    if (previewVisible) {
+      previewView.style.display = "none";
+      codeView.style.display    = "block";
+      btn.textContent = "▶ Preview";
+    } else {
+      editView.style.display    = "none";
+      codeView.style.display    = "none";
+      previewView.style.display = "flex";
+      btn.textContent = "◀ Code";
+      const iframe = artifactViewerArea.querySelector("#av-preview-iframe");
+      // Wrap CSS in a basic HTML shell
+      if (isCss) {
+        iframe.srcdoc = `<style>${artifact.content}</style><p style="font-family:sans-serif;color:#555;padding:16px">CSS preview — add HTML content to see full effect.</p>`;
+      } else {
+        iframe.srcdoc = artifact.content;
+      }
+    }
+  });
+}
+
+// Public: open panel and select an artifact by filename (called from chip clicks)
+window.openAndSelectArtifact = (filename) => {
+  const artifact = getArtifactByFilename(filename);
+  if (artifact) {
+    selectedArtifactId = artifact.id;
+    openArtifactPanel();
+  }
+};
+
+// ─── ARTIFACT PARSING ─────────────────────────────────────────────────────────
+
+function parseArtifacts(text) {
+  const artifacts = [];
+  const regex = /<artifact\s+filename="([^"]+)"\s+language="([^"]+)"\s+action="([^"]+)">([\s\S]*?)<\/artifact>/gi;
+  let match;
+  while ((match = regex.exec(text)) !== null) {
+    artifacts.push({
+      filename: match[1].trim(),
+      language: match[2].trim().toLowerCase(),
+      action:   match[3].trim().toLowerCase(),
+      content:  match[4].replace(/^\n/, "").replace(/\n$/, ""),
+    });
+  }
+  const cleaned = text
+    .replace(/<artifact\s[\s\S]*?<\/artifact>/gi, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+  return { cleaned, artifacts };
+}
+
+function getFileIcon(lang) {
+  const map = {
+    javascript: "🟡", js: "🟡", jsx: "⚛️", typescript: "🔷", ts: "🔷", tsx: "⚛️",
+    html: "🌐", htm: "🌐", css: "🎨", scss: "🎨", sass: "🎨",
+    python: "🐍", py: "🐍", bash: "💻", sh: "💻", shell: "💻",
+    json: "📋", yaml: "📋", yml: "📋", toml: "📋",
+    markdown: "📝", md: "📝", txt: "📝",
+    rust: "🦀", go: "🐹", java: "☕", cpp: "⚙️", c: "⚙️",
+    php: "🐘", ruby: "💎", rb: "💎", swift: "🍎", kotlin: "🟣",
+    sql: "🗃️", graphql: "🔴",
+  };
+  return map[lang?.toLowerCase()] ?? "📄";
+}
+
+// ─── SEND MESSAGE ─────────────────────────────────────────────────────────────
+messageInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+messageInput.addEventListener("input", () => {
+  messageInput.style.height = "auto";
+  messageInput.style.height = Math.min(messageInput.scrollHeight, 180) + "px";
+});
+sendBtn.onclick = sendMessage;
+
+async function sendMessage() {
+  const text = messageInput.value.trim();
+  if (!text && !pendingImage) return;
+  if (!currentUser) { showToast("Please log in", "error"); return; }
+
+  const precheck = await checkAndDeductTokens(0);
+  if (!precheck.ok && !isAdmin) {
+    showToast(`Not enough tokens! Balance: ${tokenBalance.toLocaleString()}`, "error");
+    return;
+  }
+
+  if (!currentChatId) {
+    const title = text.slice(0, 50) || "Image Chat";
+    currentChatId = await createNewChat(title);
+    await loadChatList();
+  }
+
+  const userText = messageInput.value.trim();
+  messageInput.value = "";
+  messageInput.style.height = "auto";
+
+  let userContent;
+  const capturedImage = pendingImage;
+  window.clearImage();
+
+  if (capturedImage) {
+    userContent = [
+      { type: "image_url", image_url: { url: `data:${capturedImage.mimeType};base64,${capturedImage.base64}` } },
+      { type: "text", text: userText || "Describe this image." },
+    ];
+  } else {
+    userContent = userText;
+  }
+
+  renderMessage("user", userContent, "", 0);
+  scrollToBottom();
+  await addMessage(currentChatId, { role: "user", content: userContent });
+
+  const isImageRequest =
+    selectedModel.isImageModel ||
+    (/\b(generate|create|draw|make|paint|render)\b.*\b(image|picture|photo|art|illustration)\b/i.test(userText) && !capturedImage && !agenticMode);
+
+  const typingEl = showTyping();
+
+  let responseText  = "";
+  let thinkingText  = "";
+  let tokensUsed    = 0;
+  let responseChips = [];
+
+  try {
+    const idToken = await currentUser.getIdToken();
+    const headers = { "Content-Type": "application/json", "Authorization": `Bearer ${idToken}` };
+
+    if (agenticMode && !isImageRequest) {
+      // ── AGENTIC CODING (Codestral) ─────────────────────────────────────────
+      // Build message history with system prompt at top
+      const agenticMessages = [
+        { role: "system", content: AGENTIC_SYSTEM_PROMPT },
+        ...messageHistory,
+        { role: "user", content: userText },
+      ];
+
+      const res = await fetch(`${DENO_API_URL}/api/chat`, {
+        method: "POST", headers,
+        body: JSON.stringify({
+          model:     "codestral-latest",
+          provider:  "mistral",
+          messages:  agenticMessages,
+          reasoning: false,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Agentic chat failed");
+
+      tokensUsed = data.tokensUsed ?? 50;
+      const raw  = data.text ?? "";
+
+      // Parse and save artifacts
+      const { cleaned, artifacts: parsedArtifacts } = parseArtifacts(raw);
+
+      for (const parsed of parsedArtifacts) {
+        const existing = getArtifactByFilename(parsed.filename);
+        let saved;
+        if (existing && parsed.action === "edit") {
+          saved = updateArtifactContent(existing.id, parsed.content);
+          if (saved) saved.filename = existing.filename;
+        } else {
+          saved = createArtifact(parsed);
+        }
+        if (saved) {
+          responseChips.push({
+            id:       saved.id,
+            filename: parsed.filename,
+            language: parsed.language,
+            action:   parsed.action,
+          });
+        }
+      }
+
+      if (responseChips.length > 0) {
+        selectedArtifactId = responseChips[responseChips.length - 1].id;
+        if (!artifactPanelOpen) openArtifactPanel();
+        else refreshArtifactPanel();
+      }
+
+      // Use CLEANED text in history (no artifact XML in context)
+      responseText = cleaned;
+
+    } else if (isImageRequest) {
+      // ── IMAGE GENERATION ────────────────────────────────────────────────────
+      const res = await fetch(`${DENO_API_URL}/api/image`, {
+        method: "POST", headers,
+        body: JSON.stringify({ prompt: userText }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Image generation failed");
+      responseText = `__IMAGE__${data.imageUrl}`;
+      tokensUsed   = data.tokensUsed ?? 1000;
+
+    } else if (capturedImage) {
+      // ── VISION ──────────────────────────────────────────────────────────────
+      const res = await fetch(`${DENO_API_URL}/api/vision`, {
+        method: "POST", headers,
+        body: JSON.stringify({
+          prompt:      userText || "Describe this image.",
+          imageBase64: capturedImage.base64,
+          mimeType:    capturedImage.mimeType,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Vision failed");
+      responseText = data.text;
+      tokensUsed   = data.tokensUsed ?? 100;
+
+    } else {
+      // ── STANDARD CHAT ───────────────────────────────────────────────────────
+      messageHistory.push({ role: "user", content: userText });
+
+      const res = await fetch(`${DENO_API_URL}/api/chat`, {
+        method: "POST", headers,
+        body: JSON.stringify({
+          model:     selectedModel.id,
+          provider:  selectedModel.provider,
+          messages:  messageHistory,
+          reasoning: useReasoning && selectedModel.hasReasoning,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Chat failed");
+      responseText = data.text;
+      thinkingText = data.thinking ?? "";
+      tokensUsed   = data.tokensUsed ?? 50;
+    }
+
+    // Deduct tokens
+    const actualCost = calculateCost(tokensUsed, selectedModel, useReasoning && !!thinkingText);
+    const deduction  = await checkAndDeductTokens(actualCost);
+    if (deduction.ok) { tokenBalance = deduction.newBalance; updateTokenUI(); }
+
+    // Render AI response (with artifact chips if agentic)
+    typingEl.remove();
+    renderMessage("assistant", responseText, thinkingText, actualCost, responseChips);
+    scrollToBottom();
+
+    // Push cleaned text to history
+    messageHistory.push({ role: "assistant", content: responseText });
+    await addMessage(currentChatId, {
+      role:       "assistant",
+      content:    responseText,
+      thinking:   thinkingText,
+      tokensUsed: actualCost,
+      model:      selectedModel.id,
+    });
+
+    // Auto-title on first exchange
+    const msgs = await getMessages(currentChatId);
+    if (msgs.length === 2) {
+      const autoTitle = userText.slice(0, 50) || "Chat";
+      await updateChatTitle(currentChatId, autoTitle);
+      await loadChatList();
+    }
+
+  } catch (err) {
+    typingEl.remove();
+    renderMessage("assistant", `❌ Error: ${err.message}`, "", 0);
+    showToast(err.message, "error");
+  }
+}
+
+// ─── RENDER MESSAGE ───────────────────────────────────────────────────────────
+function renderMessage(role, content, thinking = "", tokensUsed = 0, chips = []) {
+  const ws = chatArea.querySelector("#welcome-screen");
+  if (ws) ws.remove();
+
+  const wrapper = document.createElement("div");
+  wrapper.className = `message-wrapper ${role}`;
+
+  const avatarHTML = role === "user"
+    ? `<div class="msg-avatar">${currentUser?.photoURL ? `<img src="${currentUser.photoURL}">` : (currentUser?.displayName?.[0] ?? "U")}</div>`
+    : `<div class="msg-avatar ai-avatar">S</div>`;
+
+  // ── Format content ──
+  let bubbleHTML = "";
+
+  if (typeof content === "string" && content.startsWith("__IMAGE__")) {
+    const imgUrl = content.replace("__IMAGE__", "");
+    bubbleHTML = `
+      <p style="font-size:.82rem;color:#7c3aed;font-weight:600;margin-bottom:8px"><i>✨ Generated image</i></p>
+      <img src="${imgUrl}" style="max-width:100%;border-radius:12px;" alt="Generated image">
+    `;
+  } else if (Array.isArray(content)) {
+    const textPart = content.find(c => c.type === "text")?.text ?? "";
+    const imgPart  = content.find(c => c.type === "image_url");
+    if (imgPart) bubbleHTML += `<img src="${imgPart.image_url?.url}" style="max-height:140px;border-radius:8px;margin-bottom:8px;display:block;">`;
+    if (textPart) bubbleHTML += `<span>${escHtml(textPart)}</span>`;
+  } else {
+    bubbleHTML = markdownToHtml(String(content));
+  }
+
+  // ── Artifact chips ──
+  const chipsHtml = chips.length > 0 ? `
+    <div class="artifact-chips-container">
+      ${chips.map(c => `
+        <div class="artifact-chip" onclick="window.openAndSelectArtifact('${escHtml(c.filename)}')">
+          <span class="artifact-chip-icon">${getFileIcon(c.language)}</span>
+          <div class="artifact-chip-info">
+            <div class="artifact-chip-filename">${escHtml(c.filename)}</div>
+            <div class="artifact-chip-meta">${c.action === "edit" ? "✏️ Updated" : "✅ Created"} · ${escHtml(c.language)}</div>
+          </div>
+          <span class="artifact-chip-open">Open →</span>
+        </div>
+      `).join("")}
+    </div>
+  ` : "";
+
+  // ── Thinking block ──
+  const thinkingBlock = thinking ? `
+    <div class="thinking-block">
+      <div class="thinking-toggle" onclick="toggleThinking(this)">
+        <span>🧠</span><span>View reasoning</span>
+        <span class="thinking-chevron">▾</span>
+      </div>
+      <div class="thinking-content">${escHtml(thinking)}</div>
+    </div>
+  ` : "";
+
+  // ── Token tag ──
+  const tokenTag = tokensUsed > 0 ? `
+    <div class="token-usage-tag">
+      <span>⚡</span>
+      <span><span class="token-count">${tokensUsed.toLocaleString()}</span> tokens used</span>
+    </div>
+  ` : "";
+
+  // Only show bubble if there's actual content
+  const hasBubble = bubbleHTML.trim() && bubbleHTML.trim() !== "<p></p>";
+
+  wrapper.innerHTML = `
+    ${role === "user" ? "" : avatarHTML}
+    <div class="message-body">
+      ${thinkingBlock}
+      ${hasBubble ? `<div class="bubble">${bubbleHTML}</div>` : ""}
+      ${chipsHtml}
+      ${tokenTag}
+    </div>
+    ${role === "user" ? avatarHTML : ""}
+  `;
+
+  chatArea.appendChild(wrapper);
+  highlightCodeBlocks(wrapper);
+}
+
+window.toggleThinking = (toggleEl) => {
+  const content = toggleEl.nextElementSibling;
+  const isOpen  = content.classList.contains("open");
+  content.classList.toggle("open", !isOpen);
+  toggleEl.classList.toggle("open", !isOpen);
+  toggleEl.querySelector(".thinking-chevron").textContent = isOpen ? "▾" : "▴";
+};
+
+function showTyping() {
+  const ws = chatArea.querySelector("#welcome-screen");
+  if (ws) ws.remove();
+
+  const el = document.createElement("div");
+  el.className = "message-wrapper assistant";
+  el.innerHTML = `
+    <div class="msg-avatar ai-avatar">S</div>
+    <div class="message-body">
+      <div class="bubble">
+        <div class="typing-indicator">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+    </div>
+  `;
+  chatArea.appendChild(el);
+  scrollToBottom();
+  return el;
+}
+
+// ─── MARKDOWN RENDERER ────────────────────────────────────────────────────────
+function markdownToHtml(md) {
+  let html = escHtml(md);
+  html = html.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+    const langLabel = lang || "code";
+    return `<div class="code-block-wrapper"><div class="code-block-header"><span class="code-lang-label">${langLabel}</span><button class="copy-code-btn" onclick="copyCode(this)">📋 Copy</button></div><pre><code class="language-${lang || "plaintext"}">${code.trim()}</code></pre></div>`;
+  });
+  html = html.replace(/`([^`]+)`/g, "<code class=\"inline-code\">$1</code>");
+  html = html.replace(/\*\*\*(.+?)\*\*\*/g, "<strong><em>$1</em></strong>");
+  html = html.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  html = html.replace(/\*(.+?)\*/g,     "<em>$1</em>");
+  html = html.replace(/^### (.+)$/gm, "<h3>$1</h3>");
+  html = html.replace(/^## (.+)$/gm,  "<h2>$1</h2>");
+  html = html.replace(/^# (.+)$/gm,   "<h1>$1</h1>");
+  html = html.replace(/^&gt; (.+)$/gm, "<blockquote>$1</blockquote>");
+  html = html.replace(/^(\s*)[*\-] (.+)$/gm, "<li>$2</li>");
+  html = html.replace(/(<li>.*<\/li>\n?)+/gs, "<ul>$&</ul>");
+  html = html.replace(/^\d+\. (.+)$/gm, "<li>$1</li>");
+  html = html.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  html = html.replace(/^---+$/gm, "<hr>");
+  html = html.replace(/\n{2,}/g, "</p><p>");
+  html = html.replace(/\n/g, "<br>");
+  html = `<p>${html}</p>`;
+  html = html.replace(/<p><\/p>/g, "");
+  html = html.replace(/<p>(<h[1-6]>)/g, "$1");
+  html = html.replace(/(<\/h[1-6]>)<\/p>/g, "$1");
+  html = html.replace(/<p>(<ul>|<ol>|<pre>|<blockquote>|<hr>|<div class="code-block-wrapper)/g, "$1");
+  html = html.replace(/(<\/ul>|<\/ol>|<\/pre>|<\/blockquote>|<hr>|<\/div>)<\/p>/g, "$1");
+  return html;
+}
+
+// ─── CODE BLOCK HELPERS ───────────────────────────────────────────────────────
+window.copyCode = (btn) => {
+  const codeEl = btn.closest(".code-block-wrapper")?.querySelector("code");
+  if (!codeEl) return;
+  navigator.clipboard.writeText(codeEl.textContent ?? "").then(() => {
+    btn.textContent = "✅ Copied!";
+    btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = "📋 Copy"; btn.classList.remove("copied"); }, 2000);
+  }).catch(() => {
+    const ta = document.createElement("textarea");
+    ta.value = codeEl.textContent ?? "";
+    ta.style.position = "fixed"; ta.style.opacity = "0";
+    document.body.appendChild(ta); ta.select();
+    document.execCommand("copy"); ta.remove();
+    btn.textContent = "✅ Copied!";
+    setTimeout(() => btn.textContent = "📋 Copy", 2000);
+  });
+};
+
+function highlightCodeBlocks(container) {
+  if (typeof hljs === "undefined") return;
+  container.querySelectorAll("pre code:not(.hljs)").forEach((el) => hljs.highlightElement(el));
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function scrollToBottom() {
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+// ─── ADMIN PANEL ──────────────────────────────────────────────────────────────
+$("#admin-nav-btn").onclick = async () => {
+  adminPanel.classList.remove("hidden");
+  await loadAdminUsers();
+};
+$("#admin-close").onclick = () => adminPanel.classList.add("hidden");
+
+async function loadAdminUsers() {
+  const users = await adminGetAllUsers();
+  const tbody = $("#admin-users-body");
+  tbody.innerHTML = users.map(u => `
+    <tr>
+      <td>${escHtml(u.email)}</td>
+      <td>${u.isAdmin ? "✅ Admin" : "User"}</td>
+      <td>${u.tokenBalance === Infinity ? "∞" : (u.tokenBalance ?? 0).toLocaleString()}</td>
+      <td>${(u.totalUsed ?? 0).toLocaleString()}</td>
+    </tr>
+  `).join("");
+}
+
+$("#admin-grant-btn").onclick = async () => {
+  const email  = $("#admin-email-input").value.trim();
+  const amount = parseInt($("#admin-amount-input").value, 10);
+  if (!email || !amount || isNaN(amount)) { showToast("Enter email and amount", "error"); return; }
+  const result = await adminGrantTokens(email, amount);
+  if (result.ok) {
+    showToast(`Granted ${amount.toLocaleString()} tokens to ${email}`, "success");
+    await loadAdminUsers();
+  } else {
+    showToast(result.reason ?? "Failed", "error");
+  }
+};
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function showToast(msg, type = "info") {
+  const t = document.createElement("div");
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  toastContainer.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+window.showToast = showToast;
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+showWelcomeScreen();
+updateModelBtn();
+
+
+
+})();
+
+</script>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a06590d209c24f28',t:'MTc4MDU2MTcyMw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
