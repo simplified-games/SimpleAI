@@ -1,5 +1,5 @@
 <!DOCTYPE html> 
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,9 +31,33 @@
   --header-h:     60px;
 }
 
+/* ── DARK MODE ──────────────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --bg:           #0f172a;
+  --bg-sidebar:   #1e293b;
+  --bg-input:     #1e293b;
+  --bg-hover:     #334155;
+  --bg-active:    #475569;
+  --text-primary: #f1f5f9;
+  --text-muted:   #94a3b8;
+  --border:       #334155;
+  --accent:       #60a5fa;
+  --accent-dark:  #3b82f6;
+  --accent-light: #1e3a8a;
+  --user-bubble:  #1e3a8a;
+  --ai-bubble:    #1e293b;
+  --danger:       #f87171;
+  --success:      #34d399;
+}
+[data-theme="dark"] .bubble code { background: rgba(255,255,255,0.1); }
+[data-theme="dark"] .artifact-chip { background: #1e293b; }
+[data-theme="dark"] .login-card { background: #1e293b; }
+[data-theme="dark"] .model-modal-inner { background: #1e293b; }
+[data-theme="dark"] .admin-inner { background: #1e293b; }
+
 /* ── RESET ──────────────────────────────────────────────────────────────────── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; overflow: hidden; font-family: var(--font); background: var(--bg); color: var(--text-primary); }
+html, body { height: 100%; overflow: hidden; font-family: var(--font); background: var(--bg); color: var(--text-primary); transition: background .2s, color .2s; }
 a { text-decoration: none; color: inherit; }
 button { cursor: pointer; border: none; background: none; font-family: inherit; }
 input, textarea { font-family: inherit; }
@@ -1013,6 +1037,7 @@ code.inline-code {
   flex-direction: column;
   overflow: hidden;
   background: #1e1e2e;
+  min-height: 0; /* allow shrink for console */
 }
 .artifact-viewer-empty {
   flex: 1;
@@ -1118,7 +1143,7 @@ code.inline-code {
   border: none;
   outline: none;
   resize: none;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-family: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: .81rem;
   line-height: 1.65;
   padding: 18px 20px;
@@ -1189,10 +1214,161 @@ code.inline-code {
   color: #10b981;
   white-space: nowrap;
 }
+/* ── THEME TOGGLE ────────────────────────────────────────────────────────────── */
+#theme-toggle {
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 1.05rem;
+  color: var(--text-muted);
+  transition: background .15s;
+}
+#theme-toggle:hover { background: var(--bg-hover); }
 
-</style>
+/* ── TOOL CALL BLOCKS ────────────────────────────────────────────────────────── */
+.tool-call-block {
+  background: var(--bg-active);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 10px 0;
+  overflow: hidden;
+  max-width: 900px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+.tool-header {
+  padding: 8px 12px;
+  background: var(--bg-hover);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.tool-content {
+  padding: 12px;
+  font-family: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .82rem;
+  white-space: pre-wrap;
+  color: var(--text-primary);
+}
+.tool-result { background: rgba(0,0,0,0.12); border-top: 1px solid var(--border); }
+[data-theme="dark"] .tool-result { background: rgba(0,0,0,0.3); }
+
+/* ── PERMISSION TOAST ────────────────────────────────────────────────────────── */
+.permission-toast {
+  position: fixed;
+  bottom: 100px;
+  right: 20px;
+  width: 340px;
+  background: var(--bg-sidebar);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  z-index: 1000;
+  animation: slideInRight .3s ease;
+}
+.permission-title {
+  font-weight: 700;
+  font-size: .9rem;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+}
+.permission-cmd {
+  display: block;
+  background: #1e1e2e;
+  color: #cdd6f4;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-family: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .8rem;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  white-space: pre;
+}
+.permission-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.btn-small {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: .82rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all .15s;
+}
+.btn-deny { background: var(--bg-hover); color: var(--danger); }
+.btn-deny:hover { background: #fee2e2; }
+.btn-allow { background: var(--accent); color: #fff; }
+.btn-allow:hover { background: var(--accent-dark); }
+
+/* ── IDE TABS ────────────────────────────────────────────────────────────────── */
+.ide-tabs {
+  display: flex;
+  background: #181825;
+  border-bottom: 1px solid #313244;
+  overflow-x: auto;
+  flex-shrink: 0;
+  min-height: 36px;
+}
+.ide-tab {
+  padding: 7px 16px;
+  font-size: .79rem;
+  cursor: pointer;
+  border-right: 1px solid #313244;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  color: #6c7086;
+  font-family: 'Fira Code', ui-monospace, monospace;
+  transition: background .12s, color .12s;
+}
+.ide-tab:hover { background: rgba(255,255,255,.05); color: #a6adc8; }
+.ide-tab.active {
+  background: #1e1e2e;
+  border-bottom: 2px solid var(--accent);
+  color: #cdd6f4;
+}
+
+/* ── IDE CONSOLE ─────────────────────────────────────────────────────────────── */
+.ide-console {
+  height: 140px;
+  background: #11111b;
+  border-top: 2px solid #313244;
+  font-family: 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .76rem;
+  padding: 8px 12px;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+.ide-console-header {
+  color: #6c7086;
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #313244;
+}
+.console-log { color: #cdd6f4; margin-bottom: 3px; line-height: 1.5; }
+.console-error { color: #f38ba8; margin-bottom: 3px; }
+.console-success { color: #a6e3a1; margin-bottom: 3px; }
+.console-cmd { color: #89b4fa; margin-bottom: 3px; }
+
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
@@ -1266,6 +1442,8 @@ code.inline-code {
         </label>
       </div>
       <div class="header-actions">
+        <!-- ── THEME TOGGLE ──────────────────────────────────────────────── -->
+        <button id="theme-toggle" title="Toggle Dark Mode">🌓</button>
         <!-- ── AGENTIC CODING TOGGLE ─────────────────────────────────────── -->
         <button id="agentic-toggle-btn" title="Toggle Agentic Coding mode">
           💻 Agentic
@@ -1324,6 +1502,9 @@ code.inline-code {
       <p class="artifact-list-empty">No artifacts yet.</p>
     </div>
 
+    <!-- IDE Tabs Bar -->
+    <div id="ide-tabs" class="ide-tabs"></div>
+
     <!-- Code viewer / editor / preview -->
     <div id="artifact-viewer-area" class="artifact-viewer-area">
       <div class="artifact-viewer-empty">
@@ -1331,6 +1512,12 @@ code.inline-code {
         <p style="font-weight:600;color:#a6adc8;">No file selected</p>
         <p style="font-size:.78rem;color:#585b70;margin-top:4px;text-align:center;line-height:1.5;">Ask the AI to write code.<br>Files will appear here.</p>
       </div>
+    </div>
+
+    <!-- IDE Console / Terminal -->
+    <div id="ide-console" class="ide-console">
+      <div class="ide-console-header">Terminal / Console</div>
+      <div id="console-output"></div>
     </div>
 
   </div><!-- /artifact-panel -->
@@ -1389,6 +1576,7 @@ code.inline-code {
   </div>
 </div>
 
+<div id="permission-container"></div>
 <div id="toast-container"></div>
 
 <!-- ══ FIREBASE + APP SCRIPTS ════════════════════════════════════════════════ -->
@@ -2083,6 +2271,89 @@ getArtifactByFilename = __EXP_artifacts_js_getArtifactByFilename;
 clearAllArtifacts = __EXP_artifacts_js_clearAllArtifacts;
 
 // ============================================================
+// vfs.js — Virtual File System
+// ============================================================
+class VFS {
+  constructor() {
+    this.storageKey = "simpleai_vfs_v2";
+    this.files = this._load();
+  }
+  _load() {
+    try { return JSON.parse(localStorage.getItem(this.storageKey) ?? "{}"); }
+    catch { return {}; }
+  }
+  _save() { localStorage.setItem(this.storageKey, JSON.stringify(this.files)); }
+  writeFile(path, content, language = "text") {
+    const versions = this.files[path]?.versions || [];
+    versions.push({ timestamp: Date.now(), content });
+    this.files[path] = { content, language, versions: versions.slice(-10), updatedAt: Date.now() };
+    this._save();
+    return true;
+  }
+  readFile(path) { return this.files[path] || null; }
+  deleteFile(path) { delete this.files[path]; this._save(); }
+  list() { return Object.keys(this.files).filter(k => !k.endsWith("/.keep")).sort(); }
+  mkdir(path) { this.writeFile(path + "/.keep", "", ""); return `Created directory ${path}`; }
+  clear() { this.files = {}; this._save(); }
+}
+const vfs = new VFS();
+
+// ============================================================
+// agentic-runtime.js — AgenticRuntime with Permission System
+// ============================================================
+class AgenticRuntime {
+  constructor(uiCallbacks) {
+    this.ui = uiCallbacks;
+    this._resolvePermission = null;
+  }
+  async executeTool(toolName, command) {
+    if (toolName === "bash") return await this._handleBash(command);
+    return "Unknown tool: " + toolName;
+  }
+  async _handleBash(cmd) {
+    const allowed = await this._requestPermission(cmd);
+    if (!allowed) return "❌ Permission denied by user.";
+    const parts = cmd.trim().split(/\s+/);
+    const action = parts[0];
+    const args = parts.slice(1);
+    switch (action) {
+      case "ls": {
+        const files = vfs.list();
+        return files.length ? files.join("\n") : "(empty — no files yet)";
+      }
+      case "cat": {
+        if (!args[0]) return "Usage: cat <file>";
+        const f = vfs.readFile(args[0]);
+        return f ? f.content : `❌ File not found: ${args[0]}`;
+      }
+      case "rm": {
+        if (!args[0]) return "Usage: rm <file>";
+        vfs.deleteFile(args[0]);
+        return `🗑️ Deleted ${args[0]}`;
+      }
+      case "mkdir": {
+        if (!args[0]) return "Usage: mkdir <dir>";
+        return vfs.mkdir(args[0]);
+      }
+      case "echo": return args.join(" ");
+      default: return `❌ Unknown command: ${action}. Available: ls, cat, rm, mkdir, echo`;
+    }
+  }
+  _requestPermission(cmd) {
+    return new Promise((resolve) => {
+      this._resolvePermission = resolve;
+      this.ui.showPermissionRequest(cmd);
+    });
+  }
+  grant(decision) {
+    if (this._resolvePermission) {
+      this._resolvePermission(decision);
+      this._resolvePermission = null;
+    }
+  }
+}
+
+// ============================================================
 // app.js
 // ============================================================
 // ── app.js ──
@@ -2110,21 +2381,33 @@ let sidebarOpen     = true;
 let agenticMode        = false;
 let selectedArtifactId = null;
 let artifactPanelOpen  = false;
+let activeFile         = null; // currently open file in IDE tabs
 
 // ─── AGENTIC SYSTEM PROMPT ─────────────────────────────────────────────────────
 const AGENTIC_SYSTEM_PROMPT = `You are SimpleAI's Agentic Coding assistant, powered by Codestral.
-When writing code that should be saved as a file, wrap it in XML artifact tags exactly like this:
+You have direct access to a Virtual File System via bash tools and can create/edit files.
 
+BASH TOOLS — use to inspect and manage the filesystem:
+<tool name="bash">ls</tool>          — list all files
+<tool name="bash">cat filename</tool> — read a file
+<tool name="bash">rm filename</tool>  — delete a file
+<tool name="bash">mkdir dirname</tool>— create a directory
+
+ARTIFACTS — wrap code you want saved as a file:
 <artifact filename="filename.ext" language="javascript" action="create">
-// your code here
+// code here
 </artifact>
 
-Rules:
-- Use action="create" for new files, action="edit" when modifying an existing artifact
-- Give descriptive filenames with the correct extension (e.g. App.jsx, styles.css, server.py)
-- For multi-file projects, emit multiple <artifact> blocks in a single response
-- Outside artifact tags, write concise explanations only — no duplicate code
-- Never wrap artifact tags inside Markdown code fences
+WORKFLOW:
+1. ALWAYS run <tool name="bash">ls</tool> first to see existing files
+2. Create a plan.md for multi-file projects before coding
+3. Use action="create" for new files, action="edit" to modify existing ones
+4. For multi-file projects, emit multiple <artifact> blocks
+5. Outside artifact tags, write concise explanations only — no duplicate code
+
+RULES:
+- Never wrap artifact or tool tags inside Markdown code fences
+- Give descriptive filenames with the correct extension (App.jsx, styles.css, etc.)
 - Supported languages: javascript, jsx, typescript, tsx, html, css, python, bash, json, markdown, rust, go, java, cpp, c, php, ruby, swift, yaml, sql`;
 
 // ─── DOM REFS ──────────────────────────────────────────────────────────────────
@@ -2160,6 +2443,27 @@ const artifactPanel       = $("#artifact-panel");
 const artifactFileList    = $("#artifact-file-list");
 const artifactViewerArea  = $("#artifact-viewer-area");
 const artifactCountBadge  = $("#artifact-count-badge");
+const permissionContainer = $("#permission-container");
+const ideConsoleOutput    = $("#console-output");
+
+// ─── AGENTIC RUNTIME ──────────────────────────────────────────────────────────
+const runtime = new AgenticRuntime({
+  showPermissionRequest: (cmd) => {
+    const toast = document.createElement("div");
+    toast.className = "permission-toast";
+    toast.innerHTML = `
+      <div class="permission-title">⚠️ AI wants to run a command</div>
+      <code class="permission-cmd">${escHtml(cmd)}</code>
+      <div class="permission-actions">
+        <button class="btn-small btn-deny" id="perm-deny-btn">Deny</button>
+        <button class="btn-small btn-allow" id="perm-allow-btn">Allow</button>
+      </div>
+    `;
+    permissionContainer.appendChild(toast);
+    toast.querySelector("#perm-deny-btn").onclick  = () => { runtime.grant(false); toast.remove(); };
+    toast.querySelector("#perm-allow-btn").onclick = () => { runtime.grant(true);  toast.remove(); };
+  }
+});
 
 // ─── AUTH ──────────────────────────────────────────────────────────────────────
 auth.onAuthStateChanged(async (user) => {
@@ -2221,6 +2525,14 @@ $("#google-login-btn").onclick = () => {
   auth.signInWithPopup(provider).catch((e) => showToast(e.message, "error"));
 };
 $("#signout-btn").onclick = () => auth.signOut();
+
+// ─── THEME TOGGLE ─────────────────────────────────────────────────────────────
+$("#theme-toggle").onclick = () => {
+  const current = document.documentElement.getAttribute("data-theme");
+  const next    = current === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", next);
+  $("#theme-toggle").textContent = next === "dark" ? "☀️" : "🌓";
+};
 
 // ─── SIDEBAR ───────────────────────────────────────────────────────────────────
 function toggleSidebar() {
@@ -2456,6 +2768,11 @@ function toggleAgenticMode() {
 
     // Open panel
     openArtifactPanel();
+    // Sync existing artifacts to VFS
+    syncVfsFromArtifacts();
+    // Clear console for fresh session
+    if (ideConsoleOutput) ideConsoleOutput.innerHTML = "";
+    appendConsoleLog("🟢 Agentic mode active — Codestral ready", "console-success");
     showToast("Agentic Coding ON — Codestral ready 💻", "success");
   } else {
     // Restore defaults
@@ -2485,6 +2802,8 @@ function openArtifactPanel() {
 function closeArtifactPanel() {
   artifactPanelOpen = false;
   artifactPanel.classList.add("hidden");
+  activeFile = null;
+  refreshIdeTabs();
 }
 
 $("#artifact-panel-close").onclick = closeArtifactPanel;
@@ -2559,6 +2878,10 @@ function showArtifactViewerEmpty() {
 function showArtifactInViewer(artifact) {
   const isHtml = ["html", "htm"].includes(artifact.language.toLowerCase());
   const isCss  = artifact.language.toLowerCase() === "css";
+
+  // Update IDE tabs bar
+  activeFile = artifact.filename;
+  refreshIdeTabs();
 
   artifactViewerArea.innerHTML = `
     <div class="artifact-viewer">
@@ -2719,6 +3042,112 @@ function getFileIcon(lang) {
   return map[lang?.toLowerCase()] ?? "📄";
 }
 
+// ─── IDE EXPLORER & VFS HELPERS ───────────────────────────────────────────────
+
+/** Sync VFS with current artifact store, then refresh the file explorer */
+function syncVfsFromArtifacts() {
+  const arts = getArtifacts();
+  arts.forEach(a => {
+    if (!vfs.readFile(a.filename)) {
+      vfs.writeFile(a.filename, a.content, a.language);
+    }
+  });
+}
+
+/** Refresh the IDE tabs bar based on activeFile */
+function refreshIdeTabs() {
+  const tabsEl = $("#ide-tabs");
+  if (!tabsEl) return;
+  if (!activeFile) { tabsEl.innerHTML = ""; return; }
+  const icon = getFileIcon(activeFile.split(".").pop());
+  tabsEl.innerHTML = `<div class="ide-tab active"><span>${icon}</span>${escHtml(activeFile)}</div>`;
+}
+
+// ─── TOOL CALL RENDERING ──────────────────────────────────────────────────────
+
+function renderToolCall(cmd) {
+  const div = document.createElement("div");
+  div.className = "tool-call-block";
+  div.innerHTML = `
+    <div class="tool-header"><span>💻 Bash Command</span></div>
+    <div class="tool-content console-cmd">$ ${escHtml(cmd)}</div>
+  `;
+  chatArea.appendChild(div);
+  scrollToBottom();
+  return div;
+}
+
+function renderToolResult(output, blockEl) {
+  if (!blockEl) return;
+  const resDiv = document.createElement("div");
+  resDiv.className = "tool-content tool-result";
+  const isError = output.startsWith("❌");
+  resDiv.innerHTML = `<strong style="color:${isError ? "#f38ba8" : "#a6e3a1"}">Output:</strong><br>${escHtml(output)}`;
+  blockEl.appendChild(resDiv);
+  scrollToBottom();
+  appendConsoleLog(output, isError ? "console-error" : "console-log");
+}
+
+function appendConsoleLog(msg, cls = "console-log") {
+  if (!ideConsoleOutput) return;
+  const line = document.createElement("div");
+  line.className = cls;
+  line.textContent = msg;
+  ideConsoleOutput.appendChild(line);
+  ideConsoleOutput.scrollTop = ideConsoleOutput.scrollHeight;
+}
+
+// ─── AGENTIC RESPONSE PROCESSOR ───────────────────────────────────────────────
+
+/** Process an agentic AI response: run bash tools, save artifacts, return cleaned text */
+async function processAgenticResponse(rawText) {
+  let text = rawText;
+  const chips = [];
+
+  // 1. Execute bash tools
+  const toolRegex = /<tool\s+name="bash">([\s\S]*?)<\/tool>/gi;
+  const toolMatches = [];
+  let m;
+  while ((m = toolRegex.exec(rawText)) !== null) {
+    toolMatches.push({ full: m[0], cmd: m[1].trim() });
+  }
+  for (const { full, cmd } of toolMatches) {
+    appendConsoleLog("$ " + cmd, "console-cmd");
+    const blockEl = renderToolCall(cmd);
+    const result  = await runtime.executeTool("bash", cmd);
+    renderToolResult(result, blockEl);
+    text = text.replace(full, `\n[bash: ${cmd}]\n→ ${result}\n`);
+  }
+
+  // 2. Parse and save artifacts
+  const { cleaned, artifacts: parsedArtifacts } = parseArtifacts(text);
+
+  for (const parsed of parsedArtifacts) {
+    const existing = getArtifactByFilename(parsed.filename);
+    let saved;
+    if (existing && parsed.action === "edit") {
+      saved = updateArtifactContent(existing.id, parsed.content);
+      if (saved) saved.filename = existing.filename;
+    } else {
+      saved = createArtifact(parsed);
+    }
+    // Also sync to VFS so bash tools (ls, cat) can see it
+    vfs.writeFile(parsed.filename, parsed.content, parsed.language);
+    appendConsoleLog(`✅ ${parsed.action === "edit" ? "Updated" : "Created"} ${parsed.filename}`, "console-success");
+
+    if (saved) {
+      chips.push({
+        id:       saved.id,
+        filename: parsed.filename,
+        language: parsed.language,
+        action:   parsed.action,
+      });
+    }
+  }
+
+  return { cleaned, chips };
+}
+
 // ─── SEND MESSAGE ─────────────────────────────────────────────────────────────
 messageInput.addEventListener("keydown", (e) => {
   if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
@@ -2784,9 +3213,14 @@ async function sendMessage() {
 
     if (agenticMode && !isImageRequest) {
       // ── AGENTIC CODING (Codestral) ─────────────────────────────────────────
-      // Build message history with system prompt at top
+      // Build file context from VFS for smarter responses
+      const fileList = vfs.list();
+      const fileContext = fileList.length
+        ? `\n\nCurrent files in project:\n${fileList.join(", ")}`
+        : "\n\n(No files yet — this is a fresh project)";
+
       const agenticMessages = [
-        { role: "system", content: AGENTIC_SYSTEM_PROMPT },
+        { role: "system", content: AGENTIC_SYSTEM_PROMPT + fileContext },
         ...messageHistory,
         { role: "user", content: userText },
       ];
@@ -2806,35 +3240,19 @@ async function sendMessage() {
       tokensUsed = data.tokensUsed ?? 50;
       const raw  = data.text ?? "";
 
-      // Parse and save artifacts
-      const { cleaned, artifacts: parsedArtifacts } = parseArtifacts(raw);
-
-      for (const parsed of parsedArtifacts) {
-        const existing = getArtifactByFilename(parsed.filename);
-        let saved;
-        if (existing && parsed.action === "edit") {
-          saved = updateArtifactContent(existing.id, parsed.content);
-          if (saved) saved.filename = existing.filename;
-        } else {
-          saved = createArtifact(parsed);
-        }
-        if (saved) {
-          responseChips.push({
-            id:       saved.id,
-            filename: parsed.filename,
-            language: parsed.language,
-            action:   parsed.action,
-          });
-        }
-      }
+      // Process: run bash tools, save artifacts, sync VFS
+      const { cleaned, chips } = await processAgenticResponse(raw);
+      responseChips = chips;
 
       if (responseChips.length > 0) {
         selectedArtifactId = responseChips[responseChips.length - 1].id;
         if (!artifactPanelOpen) openArtifactPanel();
         else refreshArtifactPanel();
+        // Update IDE tabs for the last-opened file
+        activeFile = responseChips[responseChips.length - 1].filename;
+        refreshIdeTabs();
       }
 
-      // Use CLEANED text in history (no artifact XML in context)
       responseText = cleaned;
 
     } else if (isImageRequest) {
