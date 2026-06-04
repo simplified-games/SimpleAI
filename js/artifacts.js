@@ -1,5 +1,5 @@
 // js/artifacts.js — localStorage-backed artifact store
-
+ 
 const STORAGE_KEY = "simpleai_artifacts";
 
 /** Load all artifacts from localStorage */
