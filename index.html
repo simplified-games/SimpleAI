@@ -1653,9 +1653,11 @@ var __EXP_models_js_MODELS, __EXP_models_js_CATEGORIES, __EXP_models_js_PROVIDER
 
 // js/models.js
 const MODELS = [
+const MODELS = [
 
   // ── GROQ ─────────────────────────────────────────────────────────────────────
-  // Verified model IDs from Groq's live endpoint (api.groq.com/openai/v1)
+  // ✅ Kept | ❌ Removed deepseek-r1-distill-llama-70b (deprecated)
+  // ➕ Added: qwen3-32b (reasoning replacement), gpt-oss-120b, kimi-k2
   {
     id: "meta-llama/llama-4-maverick-17b-128e-instruct",
     name: "Llama 4 Maverick",
@@ -1693,21 +1695,49 @@ const MODELS = [
     badgeColor: "#3b82f6",
   },
   {
-    id: "deepseek-r1-distill-llama-70b",
-    name: "DeepSeek R1 (Groq)",
+    // ➕ NEW — replaces deprecated deepseek-r1-distill-llama-70b for Groq reasoning
+    id: "qwen/qwen3-32b",
+    name: "Qwen3 32B (Groq)",
     provider: "groq",
     category: "Reasoning",
-    description: "DeepSeek R1 distilled – fast reasoning on Groq LPU",
+    description: "Alibaba's Qwen3 32B – fast reasoning on Groq LPU",
     hasReasoning: true,
     hasVision: false,
-    costPerKTokens: 1,
+    costPerKTokens: 0.9,
     badge: "🧠 Reasoning",
     badgeColor: "#8b5cf6",
   },
+  {
+    // ➕ NEW — OpenAI's open-weight 120B MoE on Groq
+    id: "openai/gpt-oss-120b",
+    name: "GPT-OSS 120B (Groq)",
+    provider: "groq",
+    category: "Most Powerful",
+    description: "OpenAI's open-weight 120B MoE – top-tier reasoning on Groq LPU",
+    hasReasoning: true,
+    hasVision: false,
+    costPerKTokens: 2.5,
+    badge: "🌟 Premium",
+    badgeColor: "#f59e0b",
+  },
+  {
+    // ➕ NEW — Moonshot's agentic flagship now available on Groq
+    id: "moonshotai/kimi-k2-instruct",
+    name: "Kimi K2 (Groq)",
+    provider: "groq",
+    category: "Most Powerful",
+    description: "Moonshot AI's frontier agentic model on Groq LPU – 256K context",
+    hasReasoning: false,
+    hasVision: false,
+    costPerKTokens: 3,
+    badge: "🌟 Premium",
+    badgeColor: "#f59e0b",
+  },
 
   // ── CEREBRAS ──────────────────────────────────────────────────────────────────
-  // Base URL: https://api.cerebras.ai/v1  |  Free: 1M tokens/day, no card needed
-  // Fastest inference available: 1000–2600 tok/s on wafer-scale hardware
+  // ✅ Kept llama-4-scout, llama3.1-8b
+  // ⚠️  Replaced llama-3.3-70b (past deprecation date) with gpt-oss-120b
+  // ➕ Added: zai-glm-4.7
   {
     id: "llama-4-scout-17b-16e-instruct",
     name: "Llama 4 Scout",
@@ -1721,16 +1751,17 @@ const MODELS = [
     badgeColor: "#ef4444",
   },
   {
-    id: "llama-3.3-70b",
-    name: "Llama 3.3 70B (Cerebras)",
+    // ➕ NEW — replaces deprecated llama-3.3-70b on Cerebras
+    id: "gpt-oss-120b",
+    name: "GPT-OSS 120B (Cerebras)",
     provider: "cerebras",
-    category: "Balanced",
-    description: "Llama 3.3 70B at 1800 tok/s – fastest 70B inference",
-    hasReasoning: false,
+    category: "Most Powerful",
+    description: "OpenAI's open-weight 120B MoE – powerful reasoning on Cerebras wafer hardware",
+    hasReasoning: true,
     hasVision: false,
-    costPerKTokens: 0.6,
-    badge: "🔥 Fastest",
-    badgeColor: "#ef4444",
+    costPerKTokens: 2,
+    badge: "🌟 Premium",
+    badgeColor: "#f59e0b",
   },
   {
     id: "llama3.1-8b",
@@ -1744,16 +1775,31 @@ const MODELS = [
     badge: "🚀 Instant",
     badgeColor: "#3b82f6",
   },
+  {
+    // ➕ NEW — Z.ai's GLM-4.7 flagship on Cerebras
+    id: "zai-glm-4.7",
+    name: "GLM-4.7 (Cerebras)",
+    provider: "cerebras",
+    category: "Balanced",
+    description: "Z.ai's flagship GLM-4.7 on Cerebras – strong reasoning, tool use, and coding",
+    hasReasoning: true,
+    hasVision: false,
+    costPerKTokens: 0.8,
+    badge: "⚡ Fast",
+    badgeColor: "#10b981",
+  },
 
   // ── NVIDIA NIM ────────────────────────────────────────────────────────────────
-  // Base URL: https://integrate.api.nvidia.com/v1
-  // All IDs verified against build.nvidia.com as of May 2025
+  // ✅ Kept: nemotron-super-49b, llama-3.1-405b, deepseek-r1
+  // ⚠️  Updated kimi-k2 slug to -0905 (newer verified version)
+  // ❌ Replaced deepseek-v4-flash (unverified ID) with deepseek-v3
+  // ➕ Added: qwen3-235b, mistral-large-2411, gemma-3-27b
   {
     id: "nvidia/llama-3.3-nemotron-super-49b-v1",
     name: "Nemotron Super 49B",
     provider: "nvidia",
     category: "Reasoning",
-    description: "NVIDIA's reasoning-tuned Nemotron – great for analysis",
+    description: "NVIDIA's reasoning-tuned Nemotron – analysis and multi-agent tasks",
     hasReasoning: true,
     hasVision: false,
     costPerKTokens: 2,
@@ -1761,11 +1807,12 @@ const MODELS = [
     badgeColor: "#8b5cf6",
   },
   {
-    id: "moonshotai/kimi-k2-instruct",
+    // ⚠️ Updated slug from kimi-k2-instruct → kimi-k2-instruct-0905
+    id: "moonshotai/kimi-k2-instruct-0905",
     name: "Kimi K2",
     provider: "nvidia",
     category: "Most Powerful",
-    description: "Moonshot AI's frontier agentic model – top-tier quality",
+    description: "Moonshot AI's frontier agentic model – 256K context, top-tier coding",
     hasReasoning: false,
     hasVision: false,
     costPerKTokens: 4,
@@ -1784,7 +1831,6 @@ const MODELS = [
     badge: "💪 Powerful",
     badgeColor: "#ef4444",
   },
-  // DeepSeek R1 on NVIDIA (full model, not distill)
   {
     id: "deepseek-ai/deepseek-r1",
     name: "DeepSeek R1",
@@ -1797,22 +1843,62 @@ const MODELS = [
     badge: "🧠 Reasoning",
     badgeColor: "#8b5cf6",
   },
-  // DeepSeek V4 Flash — the stable/fast V4 endpoint (v4-pro has reliability issues)
   {
-    id: "deepseek-ai/deepseek-v4-flash",
-    name: "DeepSeek V4 Flash",
+    // ❌ Replaced unverified deepseek-ai/deepseek-v4-flash with confirmed deepseek-v3
+    id: "deepseek-ai/deepseek-v3",
+    name: "DeepSeek V3",
     provider: "nvidia",
     category: "Powerful",
-    description: "DeepSeek V4 Flash – 284B MoE, fast coding & agents",
+    description: "DeepSeek V3 – fast coding and agentic tasks on NVIDIA NIM",
     hasReasoning: false,
     hasVision: false,
     costPerKTokens: 2,
     badge: "💪 Powerful",
     badgeColor: "#ef4444",
   },
+  {
+    // ➕ NEW — Alibaba's massive 235B MoE on NIM
+    id: "qwen/qwen3-235b-a22b-instruct-fp8",
+    name: "Qwen3 235B",
+    provider: "nvidia",
+    category: "Most Powerful",
+    description: "Alibaba's 235B MoE model – top-tier reasoning and coding on NIM",
+    hasReasoning: true,
+    hasVision: false,
+    costPerKTokens: 4,
+    badge: "🌟 Premium",
+    badgeColor: "#f59e0b",
+  },
+  {
+    // ➕ NEW — Mistral Large hosted on NIM
+    id: "mistralai/mistral-large-2411",
+    name: "Mistral Large (NIM)",
+    provider: "nvidia",
+    category: "Powerful",
+    description: "Mistral's flagship model served on NVIDIA NIM infrastructure",
+    hasReasoning: false,
+    hasVision: false,
+    costPerKTokens: 2,
+    badge: "💪 Powerful",
+    badgeColor: "#ef4444",
+  },
+  {
+    // ➕ NEW — Google Gemma 3 27B with vision on NIM
+    id: "google/gemma-3-27b-it",
+    name: "Gemma 3 27B",
+    provider: "nvidia",
+    category: "Balanced",
+    description: "Google's Gemma 3 27B – vision-capable, efficient and fully open",
+    hasReasoning: false,
+    hasVision: true,
+    costPerKTokens: 1,
+    badge: "⚖️ Balanced",
+    badgeColor: "#10b981",
+  },
 
   // ── MISTRAL ────────────────────────────────────────────────────────────────────
-  // Base URL: https://api.mistral.ai/v1
+  // ✅ Kept all original models
+  // ➕ Added: magistral-small-2506, pixtral-large-latest
   {
     id: "mistral-large-latest",
     name: "Mistral Large",
@@ -1861,10 +1947,36 @@ const MODELS = [
     badge: "🧠 Reasoning",
     badgeColor: "#8b5cf6",
   },
+  {
+    // ➕ NEW — Smaller/cheaper Magistral reasoning model
+    id: "magistral-small-2506",
+    name: "Magistral Small",
+    provider: "mistral",
+    category: "Reasoning",
+    description: "Mistral's compact reasoning model – fast and affordable chain-of-thought",
+    hasReasoning: true,
+    hasVision: false,
+    costPerKTokens: 1,
+    badge: "🧠 Reasoning",
+    badgeColor: "#8b5cf6",
+  },
+  {
+    // ➕ NEW — Mistral's multimodal vision flagship
+    id: "pixtral-large-latest",
+    name: "Pixtral Large",
+    provider: "mistral",
+    category: "Powerful",
+    description: "Mistral's multimodal flagship – best-in-class vision and text",
+    hasReasoning: false,
+    hasVision: true,
+    costPerKTokens: 3,
+    badge: "💪 Powerful",
+    badgeColor: "#ef4444",
+  },
 
   // ── PIXAZO (Image Generation) ─────────────────────────────────────────────────
   {
-    id: "pixazo-image-gen",
+    id: "flux-schnell",
     name: "Pixazo Image",
     provider: "pixazo",
     category: "Image",
@@ -1872,7 +1984,7 @@ const MODELS = [
     hasReasoning: false,
     hasVision: false,
     isImageModel: true,
-    costPerKTokens: 1000,   // flat 1,000 tokens per image
+    costPerKTokens: 5000,
     badge: "🎨 Image",
     badgeColor: "#7c3aed",
   },
@@ -1881,11 +1993,11 @@ const MODELS = [
 const CATEGORIES = ["All", "Fast", "Balanced", "Powerful", "Most Powerful", "Reasoning", "Code", "Image"];
 
 const PROVIDER_INFO = {
-  groq:     { name: "Groq",         color: "#f97316", logo: "⚡" },
-  cerebras: { name: "Cerebras",     color: "#ef4444", logo: "🔥" },
-  nvidia:   { name: "NVIDIA",       color: "#76b900", logo: "🟢" },
-  mistral:  { name: "Mistral",      color: "#ff7000", logo: "🌊" },
-  pixazo:   { name: "Pixazo",       color: "#7c3aed", logo: "🎨" },
+  groq:     { name: "Groq",     color: "#f97316", logo: "⚡" },
+  cerebras: { name: "Cerebras", color: "#ef4444", logo: "🔥" },
+  nvidia:   { name: "NVIDIA",   color: "#76b900", logo: "🟢" },
+  mistral:  { name: "Mistral",  color: "#ff7000", logo: "🌊" },
+  pixazo:   { name: "Pixazo",   color: "#7c3aed", logo: "🎨" },
 };
 
   __EXP_models_js_MODELS = (typeof MODELS !== "undefined") ? MODELS : undefined;
